@@ -1,0 +1,12 @@
+{
+  "name": "labdb",
+  "connector": "postgresql",
+  "url": "",
+  "host": "localhost",
+  "port": 54320,
+  "user": "mr418495",
+  "password": "x",
+  "database": "srebrodb",
+  "schema": "test",
+  "debug": true
+}

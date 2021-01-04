@@ -1,0 +1,12 @@
+{
+  "name": "db",
+  "connector": "oracle",
+  "url": "",
+  "host": "localhost",
+  "port": 54320,
+  "user": "srebro",
+  "password": "3mxOc3$LOZ7ACDny.^ZA",
+  "database": "srebrodb",
+  "schema": "test",
+  "debug": true
+}
