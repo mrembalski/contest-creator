@@ -27,6 +27,8 @@ export class FirebaseAuthenticationStrategy implements AuthenticationStrategy {
   }
 
   extractCredencials(request: Request): string {
+
+    console.log(request.headers)
     //making sure there is a token
     if (!request.headers.authorization)
       throw new HttpErrors.Unauthorized(`Authorization header not found.`);

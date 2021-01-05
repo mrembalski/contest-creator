@@ -1,12 +1,12 @@
 {
-  "name": "labdb",
+  "name": "dev_db",
   "connector": "postgresql",
   "url": "",
   "host": "localhost",
-  "port": 54320,
-  "user": "mr418495",
-  "password": "x",
-  "database": "srebrodb",
-  "schema": "test",
+  "port": 5432,
+  "user": "postgres",
+  "password": "2902",
+  "database": "contest_creator",
+  "schema": "dev",
   "debug": true
 }
