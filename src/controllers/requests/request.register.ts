@@ -18,4 +18,10 @@ export class RequestRegister extends Entity {
     required: true,
   })
   email: string;
+
+  @property({
+    type: 'string',
+    required: true,
+  })
+  password: string;
 }

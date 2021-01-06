@@ -14,4 +14,18 @@ export class UserRepository extends DefaultCrudRepository<
   ) {
     super(User, dataSource);
   }
+
+  async checkEmailAvailable(email: string): Promise<boolean> {
+    return this.find({
+      where: {
+        email: email
+      }
+    })
+      .then((users) => {
+        if (users.length > 0)
+          return false;
+
+        return true;
+      })
+  }
 }

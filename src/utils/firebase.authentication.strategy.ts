@@ -4,6 +4,8 @@ import {UserProfile} from '@loopback/security';
 
 
 const admin = require('firebase-admin');
+const rp = require('request-promise');
+const webApiKey = "AIzaSyDIRT-37vXl_9zV4UALWNwLL1Y-ME4r7AE";
 
 export class FirebaseAuthenticationStrategy implements AuthenticationStrategy {
   name = 'firebase';
@@ -12,23 +14,43 @@ export class FirebaseAuthenticationStrategy implements AuthenticationStrategy {
 
   async authenticate(request: Request): Promise<UserProfile | undefined> {
     const token = this.extractCredencials(request);
+    // console.log(token);
 
-    return admin
-      .auth()
-      .verifyIdToken(token)
+    return this.getIdToken(token)
+      .then((idToken: string) => {
+        return admin
+          .auth()
+          .verifyIdToken(idToken)
+      })
       //https://firebase.google.com/docs/reference/admin/node/admin.auth.DecodedIdToken#uid
       .then((decodedToken: any) => {
         const uid = decodedToken.uid;
         return uid;
       })
-      .catch(() => {
+      .catch((err: any) => {
+        // console.log(err.message);
         throw new HttpErrors.Unauthorized(`Authorization unsuccessful.`);
       });
   }
 
+  //TODO: just for testing, should be received normal id token
+  //https://stackoverflow.com/questions/48268478/in-firebase-how-to-generate-an-idtoken-on-the-server-for-testing-purposes
+  async getIdToken(customToken: string) {
+    const res = await rp({
+      url: `https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyCustomToken?key=${webApiKey}`,
+      method: 'POST',
+      body: {
+        token: customToken,
+        returnSecureToken: true
+      },
+      json: true,
+    });
+    return res.idToken;
+  };
+
   extractCredencials(request: Request): string {
 
-    console.log(request.headers)
+    // console.log(request.headers)
     //making sure there is a token
     if (!request.headers.authorization)
       throw new HttpErrors.Unauthorized(`Authorization header not found.`);
