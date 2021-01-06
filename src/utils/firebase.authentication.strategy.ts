@@ -1,6 +1,6 @@
 import {AuthenticationStrategy} from '@loopback/authentication';
 import {HttpErrors, Request} from '@loopback/rest';
-import {UserProfile} from '@loopback/security';
+import {securityId, UserProfile} from '@loopback/security';
 
 
 const admin = require('firebase-admin');
@@ -25,7 +25,10 @@ export class FirebaseAuthenticationStrategy implements AuthenticationStrategy {
       //https://firebase.google.com/docs/reference/admin/node/admin.auth.DecodedIdToken#uid
       .then((decodedToken: any) => {
         const uid = decodedToken.uid;
-        return uid;
+
+        const userProfile: UserProfile = {[securityId]: uid};
+
+        return userProfile;
       })
       .catch((err: any) => {
         // console.log(err.message);
