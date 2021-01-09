@@ -5,7 +5,7 @@ import {
 import {BootMixin} from '@loopback/boot';
 import {ApplicationConfig} from '@loopback/core';
 import {RepositoryMixin} from '@loopback/repository';
-import {RestApplication} from '@loopback/rest';
+import {RestApplication, RestBindings} from '@loopback/rest';
 import {
   RestExplorerBindings,
   RestExplorerComponent
@@ -13,6 +13,7 @@ import {
 import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
 import Log from './middleware/log.middleware';
+import {CustomRejectProvider, CustomSendProvider} from './providers';
 import {BaseSequence} from './sequence';
 import {FirebaseAuthenticationStrategy} from './utils/firebase.authentication.strategy';
 import {SECURITY_SCHEME_SPEC} from './utils/security-spec';
@@ -24,11 +25,13 @@ export interface PackageInfo {
 }
 const pkg: PackageInfo = require('../package.json');
 
+//user administration
 const admin = require('firebase-admin');
-const serviceAccount = require('../serviceAccountKey.json');
-const oracledb = require('oracledb');
+//login on backend
+const firebase = require("firebase");
 
-
+const adminConfig = require('../serviceAccountKey.json');
+const firebaseConfig = require('../firebase.json');
 export class ContestCreatorApplication extends BootMixin(
   ServiceMixin(RepositoryMixin(RestApplication)),
 ) {
@@ -63,18 +66,20 @@ export class ContestCreatorApplication extends BootMixin(
     this.middleware(Log);
 
     if (admin.apps.length === 0) {
+      firebase.initializeApp(firebaseConfig);
+
       admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount),
+        credential: admin.credential.cert(adminConfig),
         databaseURL: 'https://silver-e62b5.firebaseio.com',
       });
     }
   }
 
   setUpBindings(): void {
-    // this.bind(RestBindings.SequenceActions.SEND).toProvider(CustomSendProvider);
-    // this.bind(RestBindings.SequenceActions.REJECT).toProvider(
-    //   CustomRejectProvider,
-    // );
+    this.bind(RestBindings.SequenceActions.SEND).toProvider(CustomSendProvider);
+    this.bind(RestBindings.SequenceActions.REJECT).toProvider(
+      CustomRejectProvider,
+    );
 
     this.component(AuthenticationComponent);
   }
