@@ -108,6 +108,51 @@ Przykładowy trigger znajduje się w:
 src\repositories\solution.repository.ts
 ```
 
+Wygląda następująco:
+
+```js
+  definePersistedModel(solutionEntity: typeof Solution) {
+    const solutionClass = super.definePersistedModel(solutionEntity);
+
+    solutionClass.observe('before save', async ctx => {
+      console.log('SOLUTION - BEFORE SAVE - TRIGGER');
+
+      const task = await this.taskRepository.findOne({
+        where: {
+          id: ctx.instance.taskId
+        }
+      })
+
+      if (!task) {
+        console.log('SOLUTION - BEFORE SAVE - INVALID DATA');
+        throw "No task with given id."
+      }
+
+      const contest = await this.contestRepository.findOne({
+        where: {
+          id: task.contestId
+        }
+      })
+
+      if (!contest) {
+        console.log('SOLUTION - BEFORE SAVE - INVALID DATA');
+        throw "No contest with given id."
+      }
+
+      const now = new Date();
+
+      if (now.getTime() < contest.startDate.getTime()) {
+        console.log('SOLUTION - BEFORE SAVE - INVALID DATA');
+        throw "Contest not started yet."
+      }
+
+      console.log('SOLUTION - SAVING - TRIGGER END');
+    });
+
+    return solutionClass;
+  }
+```
+
 W wypadku jakichkolwiek pytań proszę od razu napisać na:
 
 ```
