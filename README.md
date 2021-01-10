@@ -100,6 +100,14 @@ npm start
 
 W terminalu, w którym została uruchomiona powinien być komunikat do utworzenia konkretnego linku z konkretnym portem - na nim został uruchomiony serwer.
 
+## Trigger
+
+Przykładowy trigger znajduje się w:
+
+```
+src\repositories\solution.repository.ts
+```
+
 W wypadku jakichkolwiek pytań proszę od razu napisać na:
 
 ```
