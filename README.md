@@ -6,7 +6,19 @@ Aplikacja realizowana we framework'u LoopBack.
 
 Aplikacja tworzy bazę danych oraz zajmuje się dodawaniem, usuwaniem, edytowaniem encji i rekordów w niej zawartych.
 
-KONIECZNE jest stworzenie bazy postgreSQL lokalnie. W naszym wypadku dane dostępowe do niej znajdują "src\datasources\db.datasource.dev.json" - należy albo stworzyć bazę danych z takim dostępem lub odpowiednio zedytować ten plik. Powinno wystarczyć zmienienie user, password oraz database. Przy pierwszym uruchomieniu aplikacji (za pomocą "npm run debug-postgresql") można zobaczyc skrypty tworzące tabele:
+KONIECZNE jest stworzenie bazy postgreSQL lokalnie.
+
+W naszym wypadku dane dostępowe do niej znajdują
+
+```
+src\datasources\db.datasource.dev.json
+```
+
+Żeby uruchomić aplikację należy stworzyć bazę danych z takim dostępem lub odpowiednio zedytować ten plik.
+
+Powinno wystarczyć zmienienie `user`, `password` oraz `database`.
+
+Przy pierwszym uruchomieniu aplikacji (za pomocą "npm run debug-postgresql") można zobaczyc skrypty tworzące tabele:
 
 ```sql
 CREATE TABLE "dev"."commission" (
@@ -91,7 +103,7 @@ W terminalu, w którym została uruchomiona powinien być komunikat do utworzeni
 W wypadku jakichkolwiek pytań proszę od razu napisać na:
 
 ```
-michal.rembalski@gmail.com
+mr418395@students.uw.edu.pl
 ```
 
 lub zadzwonić na:
