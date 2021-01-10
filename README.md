@@ -8,6 +8,7 @@ Aplikacja tworzy bazę danych oraz zajmuje się dodawaniem, usuwaniem, edytowani
 
 KONIECZNE jest stworzenie bazy postgreSQL lokalnie. W naszym wypadku dane dostępowe do niej znajdują "src\datasources\db.datasource.dev.json" - należy albo stworzyć bazę danych z takim dostępem lub odpowiednio zedytować ten plik. Powinno wystarczyć zmienienie user, password oraz database. Przy pierwszym uruchomieniu aplikacji (za pomocą "npm run debug-postgresql") można zobaczyc skrypty tworzące tabele:
 
+```sql
 CREATE TABLE "dev"."commission" (
 "id" SERIAL,
 "contest_id" INTEGER,
@@ -65,6 +66,7 @@ CREATE TABLE "dev"."solution" (
 "solution_text" TEXT NOT NULL,
 PRIMARY KEY("id")
 )
+```
 
 ## Instalowanie koniecznych bibliotek
 
