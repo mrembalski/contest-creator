@@ -18,7 +18,7 @@ src\datasources\db.datasource.dev.json
 
 Powinno wystarczyć zmienienie `user`, `password` oraz `database`.
 
-Przy pierwszym uruchomieniu aplikacji (za pomocą "npm run debug-postgresql") można zobaczyc skrypty tworzące tabele:
+Przy pierwszym uruchomieniu aplikacji (za pomocą `npm run debug-postgresql`) można zobaczyć skrypty tworzące tabele:
 
 ```sql
 CREATE TABLE "dev"."commission" (
@@ -113,3 +113,7 @@ lub zadzwonić na:
 ```
 
 nie zważając na porę dnia i nocy.
+
+## Podsumowanie
+
+Zakładając, że baza danych została odpowiednio skonfigurowana powinno wystarczyć wykonanie `npm install` oraz `npm start`.
