@@ -95,8 +95,16 @@ npm install
 Aplikację można uruchomić za pomocą:
 
 ```sh
-npm start
+npm run start:linux
 ```
+
+lub
+
+```sh
+npm run start:win
+```
+
+Możliwe, że niektóre komendy będą wymagały `sudo`.
 
 W terminalu, w którym została uruchomiona powinien być komunikat do utworzenia konkretnego linku z konkretnym portem - na nim został uruchomiony serwer.
 
