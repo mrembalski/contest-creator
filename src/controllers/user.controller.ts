@@ -1,13 +1,14 @@
 import {authenticate} from '@loopback/authentication';
 import {inject} from '@loopback/core';
 import {repository} from '@loopback/repository';
-import {get, param, post, requestBody} from '@loopback/rest';
+import {get, getModelSchemaRef, param, post, requestBody} from '@loopback/rest';
 import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
 import {ACCESS_LEVEL, User} from '../models';
 import {UserRepository} from '../repositories/user.repository';
 import {OPERATION_SECURITY_SPEC} from '../utils/security-spec';
 import {RequestLogin} from './requests/request.login';
 import {RequestRegister} from './requests/request.register';
+import {ResponseLogin} from './responses';
 const admin = require('firebase-admin');
 
 //https://emailregex.com/
@@ -29,6 +30,7 @@ export class UserController {
       '200': {
         content: {
           'application/json': {
+            schema: getModelSchemaRef(User)
           },
         },
       },
@@ -42,7 +44,7 @@ export class UserController {
     return this.userRepository.findOne({
       where: {
         firebaseUID: uid
-      }
+      },
     })
   }
 
@@ -51,6 +53,7 @@ export class UserController {
       '200': {
         content: {
           'application/json': {
+            schema: getModelSchemaRef(ResponseLogin),
           },
         },
       },
@@ -89,6 +92,7 @@ export class UserController {
       '200': {
         content: {
           'application/json': {
+            schema: getModelSchemaRef(User),
           },
         },
       },
@@ -121,6 +125,7 @@ export class UserController {
       '200': {
         content: {
           'application/json': {
+            schema: getModelSchemaRef(ResponseLogin),
           },
         },
       },
@@ -164,8 +169,6 @@ export class UserController {
 
         return admin
           .auth()
-          //TODO: should not receive token, but for firebase testing i will do that
-          //user should be registed on frontend and then token should be passed here
           .createCustomToken(user.firebaseUID)
       })
       .then((customToken: String) => {

@@ -9,6 +9,12 @@ export async function migrate(args: string[]) {
 
   await app.migrateSchema({
     existingSchema,
+    // The order of table creation is important.
+    // A referenced table must exist before creating a
+    // foreign key constraint.
+    // For PostgreSQL connector, it does not create tables in the
+    // right order.  Therefore, this change is needed.
+    models: ['User', 'Contest', 'Commission', 'Task', 'Solution', 'Mark'],
   });
 
   process.exit(0);

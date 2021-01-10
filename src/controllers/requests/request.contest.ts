@@ -17,11 +17,11 @@ export class RequestContest extends Entity {
     type: 'string',
     required: true,
   })
-  startDate: Date;
+  startDate: string;
 
   @property({
     type: 'string',
     required: true,
   })
-  endDate: Date;
+  endDate: string;
 }

@@ -25,11 +25,8 @@ export interface PackageInfo {
 }
 const pkg: PackageInfo = require('../package.json');
 
-//user administration
 const admin = require('firebase-admin');
-//login on backend
-const firebase = require("firebase");
-
+const firebase = require('firebase');
 const adminConfig = require('../serviceAccountKey.json');
 const firebaseConfig = require('../firebase.json');
 export class ContestCreatorApplication extends BootMixin(

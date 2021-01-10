@@ -18,6 +18,7 @@ export class User extends Entity {
     type: 'number',
     id: true,
     generated: true,
+    unique: true,
     postgresql: {
       columnName: 'id',
       dataType: 'integer',
@@ -25,8 +26,8 @@ export class User extends Entity {
       dataPrecision: null,
       dataScale: 0,
       nullable: 'NO',
-      unique: true,
-    },
+      unique: true
+    }
   })
   id: number;
 
