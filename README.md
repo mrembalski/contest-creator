@@ -1,12 +1,12 @@
 # contest-creator
 
-This application is generated using [LoopBack 4 CLI](https://loopback.io/doc/en/lb4/Command-line-interface.html) with the
-[initial project layout](https://loopback.io/doc/en/lb4/Loopback-application-layout.html).
+Aplikacja realizowana we framework'u LoopBack.
 
-## Install dependencies
+## Instalowanie koniecznych bibliotek
 
-By default, dependencies were installed when this application was generated.
-Whenever dependencies in `package.json` are changed, run the following command:
+Do uruchomienia aplikacji konieczny jest NodeJS oraz npm. NodeJS można pobrać z https://nodejs.org/en/download/, a razem z nim powinien zostać zainstalowany npm.
+
+Ponadto, aplikacja korzysta z dodatkowych bibliotek, które trzeba zainstalować komendą:
 
 ```sh
 npm install
