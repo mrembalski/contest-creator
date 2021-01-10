@@ -19,6 +19,40 @@ export class CommissionController {
   ) {
   }
 
+  @get('/commission/all', {
+    security: OPERATION_SECURITY_SPEC,
+    responses: {
+      '200': {
+        content: {
+          'application/json': {
+            schema: getModelSchemaRef(Commission),
+          },
+        },
+      },
+    },
+  })
+  @authenticate('firebase')
+  async getAll(
+    @inject(SecurityBindings.USER) currentUser: UserProfile) {
+    const uid = currentUser[securityId];
+
+    return this.userRepository.findOne({
+      where: {
+        firebaseUID: uid
+      }
+    })
+      .then((user) => {
+        if (!user)
+          return Promise.reject("No such user with given firebaseUID. Could be deleted.")
+
+        if (user.accessLevel < ACCESS_LEVEL.ADMIN)
+          return Promise.reject("Insufficient permissions.");
+
+        return this.commissionRepository.find();
+      })
+  }
+
+
   @get('/commission/by_contest/add/{contest_id}/{user_id}', {
     security: OPERATION_SECURITY_SPEC,
     responses: {

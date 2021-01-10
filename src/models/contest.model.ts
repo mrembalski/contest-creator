@@ -45,12 +45,9 @@ export class Contest extends Entity {
     required: true,
     postgresql: {
       columnName: 'title',
-      dataType: 'text',
-      dataLength: null,
-      dataPrecision: null,
-      dataScale: null,
+      datatype: 'character varying',
+      dataLength: 100,
       nullable: 'NO',
-
     },
   })
   title: string;
@@ -95,6 +92,24 @@ export class Contest extends Entity {
     }
   })
   userId: number;
+
+
+  @property({
+    description: 'contest\'s secret to invite for participation',
+    type: 'string',
+    unique: true,
+    generated: true,
+    defaultFn: 'uuidv4',
+    postgresql: {
+      columnName: 'secret',
+      datatype: 'character varying',
+      dataLength: 100,
+      nullable: 'NO',
+      unique: true,
+    },
+  })
+  secret: string;
+
 
   constructor(data?: Partial<Contest>) {
     super(data);

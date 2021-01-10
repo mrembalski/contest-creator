@@ -7,11 +7,11 @@ import {
 @model({
   settings: {
     foreignKeys: {
-      fk_solution_contestId: {
-        name: 'fk_solution_contestId',
-        entity: 'contest',
+      fk_solution_taskId: {
+        name: 'fk_solution_taskId',
+        entity: 'task',
         entityKey: 'id',
-        foreignKey: 'contestId',
+        foreignKey: 'taskId',
       },
       fk_solution_userId: {
         name: 'fk_solution_userId',
@@ -43,10 +43,10 @@ export class Solution extends Entity {
   //no neet to be defined, it's already done in contest
   @property({
     postgresql: {
-      columnName: 'contest_id'
+      columnName: 'task_id'
     }
   })
-  contestId: number;
+  taskId: number;
 
   //no neet to be defined, it's already done in user
   @property({
@@ -63,11 +63,9 @@ export class Solution extends Entity {
     id: false,
     required: true,
     postgresql: {
-      columnName: 'text',
-      dataType: 'text',
-      dataLength: null,
-      dataPrecision: null,
-      dataScale: null,
+      columnName: 'solution_text',
+      datatype: 'character varying',
+      dataLength: 2000,
       nullable: 'NO',
     },
   })

@@ -62,11 +62,9 @@ export class Mark extends Entity {
     id: false,
     required: true,
     postgresql: {
-      columnName: 'text',
-      dataType: 'text',
-      dataLength: null,
-      dataPrecision: null,
-      dataScale: null,
+      columnName: 'mark_comment',
+      datatype: 'character varying',
+      dataLength: 250,
       nullable: 'NO',
     },
   })
@@ -78,7 +76,7 @@ export class Mark extends Entity {
     id: false,
     required: true,
     postgresql: {
-      columnName: 'value',
+      columnName: 'mark_value',
       dataType: 'integer',
       dataLength: null,
       dataPrecision: null,

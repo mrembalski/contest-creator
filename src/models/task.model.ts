@@ -49,11 +49,9 @@ export class Task extends Entity {
     id: false,
     required: true,
     postgresql: {
-      columnName: 'text',
-      dataType: 'text',
-      dataLength: null,
-      dataPrecision: null,
-      dataScale: null,
+      columnName: 'task_text',
+      datatype: 'character varying',
+      dataLength: 2000,
       nullable: 'NO',
     },
   })

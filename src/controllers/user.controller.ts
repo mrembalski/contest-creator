@@ -71,9 +71,7 @@ export class UserController {
 
     return firebase.auth().signInWithEmailAndPassword(request.email, password)
       .then((user: any) => {
-        console.log(user);
-        //https://stackoverflow.com/questions/57543208/getidtoken-is-not-a-function-even-if-it-is-used-like-a-function-in-firebase-d
-        return user.user.getIdToken(true)
+        return admin.auth().createCustomToken(user.user.uid)
       })
       .then((token: String) => {
         return {
@@ -154,8 +152,6 @@ export class UserController {
       })
       //firebase user instance
       .then((userRecord: any) => {
-        // console.log(userRecord);
-
         return this.userRepository.create({
           email: request.email,
           displayName: request.displayName,
@@ -165,8 +161,6 @@ export class UserController {
       })
       //database user instance
       .then((user: User) => {
-        // console.log(user);
-
         return admin
           .auth()
           .createCustomToken(user.firebaseUID)

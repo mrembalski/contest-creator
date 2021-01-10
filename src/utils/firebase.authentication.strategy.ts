@@ -14,8 +14,6 @@ export class FirebaseAuthenticationStrategy implements AuthenticationStrategy {
 
   async authenticate(request: Request): Promise<UserProfile | undefined> {
     const token = this.extractCredencials(request);
-    // console.log(token);
-
     return this.getIdToken(token)
       .then((idToken: string) => {
         return admin
@@ -30,14 +28,13 @@ export class FirebaseAuthenticationStrategy implements AuthenticationStrategy {
 
         return userProfile;
       })
-      .catch((err: any) => {
-        // console.log(err.message);
+      .catch((err: Error) => {
+
+        console.log(err.message);
         throw new HttpErrors.Unauthorized(`Authorization unsuccessful.`);
       });
   }
 
-  //TODO: just for testing, should be received normal id token
-  //https://stackoverflow.com/questions/48268478/in-firebase-how-to-generate-an-idtoken-on-the-server-for-testing-purposes
   async getIdToken(customToken: string) {
     const res = await rp({
       url: `https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyCustomToken?key=${webApiKey}`,
@@ -52,8 +49,6 @@ export class FirebaseAuthenticationStrategy implements AuthenticationStrategy {
   };
 
   extractCredencials(request: Request): string {
-
-    // console.log(request.headers)
     //making sure there is a token
     if (!request.headers.authorization)
       throw new HttpErrors.Unauthorized(`Authorization header not found.`);

@@ -81,19 +81,11 @@ export class ContestController {
     if (!(endDate instanceof Date) || isNaN(endDate.valueOf()))
       return Promise.reject("Not a valid date.");
 
-    // console.log(startDate);
-    // console.log(endDate);
-    // console.log(now)
+    if (!moment.utc(now).isBefore(moment.utc(startDate)))
+      return Promise.reject("Contest needs to start in future.");
 
-    // console.log(moment.utc(startDate).toString());
-    // console.log(moment.utc(endDate).toString());
-    // console.log(moment.utc(now).toString())
-
-    // if (!moment.utc(now).isBefore(moment.utc(startDate)))
-    //   return Promise.reject("Contest needs to start in future.");
-
-    // if (!moment.utc(startDate).isBefore(moment.utc(endDate)))
-    //   return Promise.reject("Start date needs to be before end date.");
+    if (!moment.utc(startDate).isBefore(moment.utc(endDate)))
+      return Promise.reject("Start date needs to be before end date.");
 
     return this.userRepository.findOne({
       where: {

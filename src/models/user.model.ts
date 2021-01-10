@@ -38,10 +38,8 @@ export class User extends Entity {
     required: true,
     postgresql: {
       columnName: 'firebase_uid',
-      dataType: 'text',
-      dataLength: null,
-      dataPrecision: null,
-      dataScale: null,
+      datatype: 'character varying',
+      dataLength: 100,
       nullable: 'NO',
     },
   })
@@ -54,10 +52,8 @@ export class User extends Entity {
     required: true,
     postgresql: {
       columnName: 'display_name',
-      dataType: 'text',
-      dataLength: null,
-      dataPrecision: null,
-      dataScale: null,
+      datatype: 'character varying',
+      dataLength: 100,
       nullable: 'NO',
     },
   })
@@ -69,10 +65,8 @@ export class User extends Entity {
     required: true,
     postgresql: {
       columnName: 'email',
-      dataType: 'text',
-      dataLength: null,
-      dataPrecision: null,
-      dataScale: null,
+      datatype: 'character varying',
+      dataLength: 100,
       nullable: 'NO',
     },
   })
