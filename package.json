@@ -33,8 +33,9 @@
     "openapi-spec": "node ./dist/openapi-spec",
     "rebuild": "npm run clean && npm run build",
     "prestart": "npm run rebuild",
-    "debug-postgresql": "SET DEBUG=loopback:connector:postgresql&& SET NODE_ENV=DEV&& node -r source-map-support/register .",
-    "start": "SET NODE_ENV=DEV&& node -r source-map-support/register .",
+    "debug-postgresql:win": "SET DEBUG=loopback:connector:postgresql&& SET NODE_ENV=DEV&& node -r source-map-support/register .",
+    "start:win": "SET NODE_ENV=DEV&& node -r source-map-support/register .",
+    "start:linux": "NODE_ENV=DEV node -r source-map-support/register .",
     "clean": "lb-clean dist *.tsbuildinfo .eslintcache"
   },
   "repository": {
