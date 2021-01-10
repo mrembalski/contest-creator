@@ -7,7 +7,6 @@ import {ACCESS_LEVEL, Contest} from '../models';
 import {ContestRepository, UserRepository} from '../repositories';
 import {OPERATION_SECURITY_SPEC} from '../utils';
 import {RequestContest} from './requests';
-const admin = require('firebase-admin');
 const moment = require('moment')
 export class ContestController {
   constructor(
@@ -70,9 +69,9 @@ export class ContestController {
   ) {
     const uid = currentUser[securityId];
 
-    let startDate = new Date(JSON.parse(request.startDate));
-    let endDate = new Date(JSON.parse(request.endDate));
-    let now = new Date();
+    const startDate = new Date(JSON.parse(request.startDate));
+    const endDate = new Date(JSON.parse(request.endDate));
+    const now = new Date();
 
     //making sure startDate and endDate are valid dates
     if (!(startDate instanceof Date) || isNaN(startDate.valueOf()))

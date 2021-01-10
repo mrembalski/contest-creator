@@ -91,7 +91,7 @@ export class TaskController {
         if (!contest)
           return Promise.reject("No such contest with given id. Could be deleted.")
 
-        if (adder.id != contest.userId)
+        if (adder.id !== contest.userId)
           return Promise.reject("Not your contest, you can not add tasks to this contest.")
 
         return this.taskRepository.create({

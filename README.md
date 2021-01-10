@@ -2,6 +2,12 @@
 
 Aplikacja realizowana we framework'u LoopBack.
 
+## Baza danych
+
+Aplikacja tworzy bazę danych oraz zajmuje się dodawaniem, usuwaniem, edytowaniem encji i rekordów w niej zawartych.
+
+KONIECZNE jest stworzenie bazy postgreSQL lokalnie. W naszym wypadku dane dostępowe do niej znajdują "src\datasources\db.datasource.dev.json" - należy albo stworzyć bazę danych z takim dostępem lub odpowiednio zedytować ten plik. Powinno wystarczyć zmienienie user, password oraz database.
+
 ## Instalowanie koniecznych bibliotek
 
 Do uruchomienia aplikacji konieczny jest NodeJS oraz npm. NodeJS można pobrać z https://nodejs.org/en/download/, a razem z nim powinien zostać zainstalowany npm.
@@ -12,38 +18,15 @@ Ponadto, aplikacja korzysta z dodatkowych bibliotek, które trzeba zainstalować
 npm install
 ```
 
-To only install resolved dependencies in `package-lock.json`:
+## Uruchomienie
 
-```sh
-npm ci
-```
-
-## Run the application
+Aplikację można uruchomić za pomocą:
 
 ```sh
 npm start
 ```
 
-You can also run `node .` to skip the build step.
-
-Open http://127.0.0.1:3000 in your browser.
-
-## Rebuild the project
-
-To incrementally build the project:
-
-```sh
-npm run build
-```
-
-To force a full build by cleaning up cached artifacts:
-
-```sh
-npm run clean
-npm run build
-```
-
-## Fix code style and formatting issues
+W terminalu, w którym została uruchomiona powinien być komunikat do utworzenia konkretnego linku z konkretnym portem - na nim został uruchomiony serwer.
 
 If `eslint` and `prettier` are enabled for this project, you can use the
 following commands to check code style and formatting issues.

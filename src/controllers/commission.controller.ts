@@ -6,8 +6,6 @@ import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
 import {ACCESS_LEVEL, Commission, Contest, User} from '../models';
 import {CommissionRepository, ContestRepository, UserRepository} from '../repositories';
 import {OPERATION_SECURITY_SPEC} from '../utils';
-const admin = require('firebase-admin');
-
 export class CommissionController {
   constructor(
     @repository(UserRepository)
@@ -99,7 +97,7 @@ export class CommissionController {
         if (!contest)
           return Promise.reject("No such contest with given id. Could be deleted.")
 
-        if (adder.id != contest.userId)
+        if (adder.id !== contest.userId)
           return Promise.reject("Not your contest, you can not add anyone to commission.")
 
         if (contest.endDate > new Date())
