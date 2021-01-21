@@ -5,7 +5,7 @@ import {get, getModelSchemaRef, param, requestBody} from '@loopback/rest';
 import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
 import {RequestTask} from '.';
 import {ACCESS_LEVEL, Contest, Task, User} from '../models';
-import {ContestRepository, UserRepository} from '../repositories';
+import {ContestRepository, ParticipationRepository, UserRepository} from '../repositories';
 import {TaskRepository} from '../repositories/task.repository';
 import {OPERATION_SECURITY_SPEC} from '../utils';
 
@@ -17,7 +17,8 @@ export class TaskController {
     protected userRepository: UserRepository,
     @repository(ContestRepository)
     protected contestRepository: ContestRepository,
-
+    @repository(ParticipationRepository)
+    protected participationRepository: ParticipationRepository,
   ) { }
 
   @get('/task/all', {
@@ -52,6 +53,69 @@ export class TaskController {
         return this.taskRepository.find();
       })
   }
+
+  @get('/task/by_contest/{id}', {
+    security: OPERATION_SECURITY_SPEC,
+    responses: {
+      '200': {
+        content: {
+          'application/json': {
+            schema: getModelSchemaRef(Task),
+          },
+        },
+      },
+    },
+  })
+  @authenticate('firebase')
+  async getTasksByContestId(
+    @inject(SecurityBindings.USER) currentUser: UserProfile,
+    @param.path.number('id') id: number) {
+    const uid = currentUser[securityId];
+
+    let contestId: number;
+    let isAdminOfContest: boolean;
+
+    return Promise.all([
+      this.userRepository.findOne({
+        where: {
+          firebaseUID: uid
+        }
+      }),
+      this.contestRepository.findOne({
+        where: {
+          id: id
+        }
+      })
+    ])
+      .then(([user, contest]) => {
+        if (!user)
+          return Promise.reject("No such user with given firebaseUID. Could be deleted.")
+
+        if (!contest)
+          return Promise.reject("No such contest.")
+
+        isAdminOfContest = (contest.userId == user.id)
+        contestId = contest.id;
+
+        return this.participationRepository.find({
+          where: {
+            userId: user.id,
+            contestId: contest.id
+          }
+        })
+      })
+      .then((participation) => {
+        if (!participation && isAdminOfContest)
+          return Promise.reject("Not your contest.");
+
+        return this.taskRepository.find({
+          where: {
+            contestId: contestId
+          }
+        })
+      })
+  }
+
 
   @get('/task/by_contest/add/{contest_id}', {
     security: OPERATION_SECURITY_SPEC,
