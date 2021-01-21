@@ -93,7 +93,6 @@ export class Contest extends Entity {
   })
   userId: number;
 
-
   @property({
     description: 'contest\'s secret to invite for participation',
     type: 'string',
@@ -109,7 +108,6 @@ export class Contest extends Entity {
     },
   })
   secret: string;
-
 
   constructor(data?: Partial<Contest>) {
     super(data);
