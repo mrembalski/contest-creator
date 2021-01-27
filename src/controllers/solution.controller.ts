@@ -1,7 +1,7 @@
 import {authenticate} from '@loopback/authentication';
 import {inject} from '@loopback/core';
 import {repository} from '@loopback/repository';
-import {get, getModelSchemaRef, param, requestBody} from '@loopback/rest';
+import {get, getModelSchemaRef, param, post, requestBody} from '@loopback/rest';
 import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
 import {ACCESS_LEVEL, Solution, SolutionRelations, Task, User} from '../models';
 import {ContestRepository, UserRepository} from '../repositories';
@@ -98,8 +98,8 @@ export class SolutionController {
         if (!contest)
           return Promise.reject("No such contest.");
 
-        // if (user.id != contest.userId)
-        //   return Promise.reject("You are not the admin of this contest.");
+        if (user.id != contest.userId && user.accessLevel < ACCESS_LEVEL.ADMIN)
+          return Promise.reject("You are not the admin of this contest.");
 
         return this.taskRepository.find({
           where: {
@@ -149,7 +149,7 @@ export class SolutionController {
   }
 
 
-  @get('/solution/add/{task_id}', {
+  @post('/solution/add/{task_id}', {
     security: OPERATION_SECURITY_SPEC,
     responses: {
       '200': {

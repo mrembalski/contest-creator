@@ -1,7 +1,7 @@
 import {authenticate} from '@loopback/authentication';
 import {inject} from '@loopback/core';
 import {repository} from '@loopback/repository';
-import {get, getModelSchemaRef, param, requestBody} from '@loopback/rest';
+import {get, getModelSchemaRef, param, post, requestBody} from '@loopback/rest';
 import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
 import {RequestTask} from '.';
 import {ACCESS_LEVEL, Contest, Task, User} from '../models';
@@ -97,7 +97,7 @@ export class TaskController {
         isAdminOfContest = (contest.userId == user.id)
         contestId = contest.id;
 
-        return this.participationRepository.find({
+        return this.participationRepository.findOne({
           where: {
             userId: user.id,
             contestId: contest.id
@@ -105,7 +105,7 @@ export class TaskController {
         })
       })
       .then((participation) => {
-        if (!participation && isAdminOfContest)
+        if (!participation && !isAdminOfContest)
           return Promise.reject("Not your contest.");
 
         return this.taskRepository.find({
@@ -117,7 +117,7 @@ export class TaskController {
   }
 
 
-  @get('/task/by_contest/add/{contest_id}', {
+  @post('/task/by_contest/add/{contest_id}', {
     security: OPERATION_SECURITY_SPEC,
     responses: {
       '200': {
