@@ -4,9 +4,11 @@ import {repository} from '@loopback/repository';
 import {get, getModelSchemaRef, param} from '@loopback/rest';
 import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
 import {Mark} from '../models';
-import {ContestRepository, MarkRepository, ParticipationRepository, SolutionRepository, UserRepository} from '../repositories';
+import {ContestRepository, MarkRepository, ParticipationRepository, UserRepository} from '../repositories';
+import {SolutionRepository} from '../repositories/solution.repository';
 import {TaskRepository} from '../repositories/task.repository';
 import {OPERATION_SECURITY_SPEC} from '../utils';
+
 
 export class MarkController {
   constructor(
