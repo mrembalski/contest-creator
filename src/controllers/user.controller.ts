@@ -3,7 +3,7 @@ import {inject} from '@loopback/core';
 import {repository} from '@loopback/repository';
 import {get, getModelSchemaRef, param, post, requestBody} from '@loopback/rest';
 import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
-import {ACCESS_LEVEL, User} from '../models';
+import {ACCESS_LEVEL, User} from '../models/user.model';
 import {UserRepository} from '../repositories/user.repository';
 import {OPERATION_SECURITY_SPEC} from '../utils/security-spec';
 import {RequestLogin} from './requests/request.login';
