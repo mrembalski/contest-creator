@@ -100,7 +100,7 @@ export class CommissionController {
         if (adder.id !== contest.userId)
           return Promise.reject("Not your contest, you can not add anyone to commission.")
 
-        if (contest.endDate > new Date())
+        if (contest.endDate < new Date())
           return Promise.reject("Can not edit commission after the end of contest.")
 
         return this.commissionRepository.create({
