@@ -3,7 +3,7 @@ import {inject} from '@loopback/core';
 import {repository} from '@loopback/repository';
 import {get, getModelSchemaRef, param} from '@loopback/rest';
 import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
-import {ACCESS_LEVEL, Commission, Contest, User} from '../models';
+import {ACCESS_LEVEL, Commission, CommissionRelations, Contest, User} from '../models';
 import {CommissionRepository, ContestRepository, UserRepository} from '../repositories';
 import {OPERATION_SECURITY_SPEC} from '../utils';
 export class CommissionController {
@@ -33,6 +33,7 @@ export class CommissionController {
   async getAll(
     @inject(SecurityBindings.USER) currentUser: UserProfile) {
     const uid = currentUser[securityId];
+    let commissions_: (Commission & CommissionRelations)[];
 
     return this.userRepository.findOne({
       where: {
@@ -48,11 +49,38 @@ export class CommissionController {
 
         return this.commissionRepository.find();
       })
+      .then((commissions) => {
+
+        commissions_ = commissions;
+        const promises =
+          commissions.map((commission) => {
+            return this.userRepository.findOne({
+              where: {
+                id: commission.userId
+              }
+            })
+          })
+
+        return Promise.all(promises);
+      })
+      .then((users) => {
+        return commissions_.map((commission) => {
+          let myUser = users.find((element) => {
+            element && element.id == commission.userId
+          })
+
+          return {
+            ...commission,
+            user: myUser
+          }
+        })
+      })
   }
 
 
   @get('/commission/by_contest/add/{contest_id}/{user_id}', {
     security: OPERATION_SECURITY_SPEC,
+    description: "Commission has User, instead of userId.",
     responses: {
       '200': {
         content: {
