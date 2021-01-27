@@ -3,7 +3,9 @@ import {inject} from '@loopback/core';
 import {repository} from '@loopback/repository';
 import {get, getModelSchemaRef, param} from '@loopback/rest';
 import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
-import {ACCESS_LEVEL, Commission, CommissionRelations, Contest, User} from '../models';
+import {Commission} from '../models/commission.model';
+import {Contest} from '../models/contest.model';
+import {ACCESS_LEVEL, User} from '../models/user.model';
 import {CommissionRepository, ContestRepository, UserRepository} from '../repositories';
 import {OPERATION_SECURITY_SPEC} from '../utils';
 export class CommissionController {
@@ -23,7 +25,6 @@ export class CommissionController {
       '200': {
         content: {
           'application/json': {
-            schema: getModelSchemaRef(Commission),
           },
         },
       },
@@ -31,9 +32,8 @@ export class CommissionController {
   })
   @authenticate('firebase')
   async getAll(
-    @inject(SecurityBindings.USER) currentUser: UserProfile) {
+    @inject(SecurityBindings.USER) currentUser: UserProfile): Promise<any> {
     const uid = currentUser[securityId];
-    let commissions_: (Commission & CommissionRelations)[];
 
     return this.userRepository.findOne({
       where: {
@@ -49,31 +49,23 @@ export class CommissionController {
 
         return this.commissionRepository.find();
       })
-      .then((commissions) => {
-
-        commissions_ = commissions;
-        const promises =
-          commissions.map((commission) => {
-            return this.userRepository.findOne({
-              where: {
-                id: commission.userId
-              }
-            })
+      .then(async (commissions) => {
+        return Promise.resolve(commissions.map(async (commission) => {
+          let new_commission: any = commission;
+          delete new_commission.userId;
+          new_commission.user = await this.userRepository.findOne({
+            where: {
+              id: commission.userId
+            }
           })
-
-        return Promise.all(promises);
+          return new_commission
+        }))
       })
-      .then((users) => {
-        return commissions_.map((commission) => {
-          let myUser = users.find((element) => {
-            element && element.id == commission.userId
-          })
-
-          return {
-            ...commission,
-            user: myUser
-          }
-        })
+      .then((ans) => {
+        console.log("XD");
+        console.log(ans);
+        // const res = await ans;
+        return ans;
       })
   }
 

@@ -1,13 +1,14 @@
 import {authenticate} from '@loopback/authentication';
 import {inject} from '@loopback/core';
 import {repository} from '@loopback/repository';
-import {get, getModelSchemaRef, param} from '@loopback/rest';
+import {get, getModelSchemaRef, param, post, requestBody} from '@loopback/rest';
 import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
-import {Mark} from '../models';
-import {ContestRepository, MarkRepository, ParticipationRepository, UserRepository} from '../repositories';
+import {Mark} from '../models/mark.model';
+import {CommissionRepository, ContestRepository, MarkRepository, ParticipationRepository, UserRepository} from '../repositories';
 import {SolutionRepository} from '../repositories/solution.repository';
 import {TaskRepository} from '../repositories/task.repository';
 import {OPERATION_SECURITY_SPEC} from '../utils';
+import {ValueRequest} from './requests/value.request';
 
 
 export class MarkController {
@@ -24,6 +25,8 @@ export class MarkController {
     protected solutionRepository: SolutionRepository,
     @repository(ContestRepository)
     protected contestRepository: ContestRepository,
+    @repository(CommissionRepository)
+    protected commissionRepository: CommissionRepository,
   ) { }
 
   @get('/mark/by_contest/{id}', {
@@ -257,4 +260,90 @@ export class MarkController {
         })
       })
   }
+
+
+  @post('/mark/by_solution/{id}/{value}', {
+    security: OPERATION_SECURITY_SPEC,
+    responses: {
+      '200': {
+        content: {
+          'application/json': {
+            schema: getModelSchemaRef(Mark),
+          },
+        },
+      },
+    },
+  })
+  @authenticate('firebase')
+  async markSolution(
+    @inject(SecurityBindings.USER) currentUser: UserProfile,
+    @param.path.number('id') id: number,
+    @requestBody() valueRequest: ValueRequest
+  ) {
+    const uid = currentUser[securityId];
+
+    if (valueRequest.value != 0 && valueRequest.value != 2 && valueRequest.value != 5 && valueRequest.value != 6)
+      return Promise.reject("Invalid value.")
+
+    let userId: number;
+
+    return this.userRepository.findOne({
+      where: {
+        firebaseUID: uid
+      }
+    })
+      .then((user) => {
+        if (!user)
+          return Promise.reject("No such user with given firebaseUID. Could be deleted.")
+
+        userId = user.id;
+        return this.solutionRepository.findOne({
+          where: {
+            id: id
+          }
+        })
+      })
+      .then((solution) => {
+        if (!solution)
+          return Promise.reject("No such solution.");
+
+        return this.taskRepository.findOne({
+          where: {
+            id: solution.taskId
+          }
+        })
+      })
+      .then((task) => {
+        if (!task)
+          return Promise.reject("No such task.");
+
+        return this.contestRepository.findOne({
+          where: {
+            id: task.contestId
+          }
+        })
+      })
+      .then((contest) => {
+        if (!contest)
+          return Promise.reject("No such contest.");
+
+        return this.commissionRepository.findOne({
+          where: {
+            userId: userId,
+            contestId: contest.id
+          }
+        })
+      })
+      .then((commission) => {
+        if (!commission)
+          return Promise.reject("No such commission.");
+
+        return this.markRepository.create({
+          solutionId: id,
+          userId: userId,
+          value: valueRequest.value
+        })
+      })
+  }
+
 }
