@@ -3,7 +3,6 @@ import {
   model,
   property
 } from '@loopback/repository';
-import {User} from './user.model';
 
 @model({
   settings: {
@@ -63,7 +62,6 @@ export class Commission extends Entity {
 }
 
 export interface CommissionRelations {
-  user: User
 }
 
 export type CommissionsWithRelations = Commission & CommissionRelations;

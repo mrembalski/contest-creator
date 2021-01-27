@@ -80,6 +80,7 @@ export class CommissionController {
 
   @get('/commission/by_contest/add/{contest_id}/{user_id}', {
     security: OPERATION_SECURITY_SPEC,
+    description: "Commission has User, instead of userId.",
     responses: {
       '200': {
         content: {
