@@ -8,7 +8,7 @@ import {CommissionRepository, ContestRepository, MarkRepository, ParticipationRe
 import {SolutionRepository} from '../repositories/solution.repository';
 import {TaskRepository} from '../repositories/task.repository';
 import {OPERATION_SECURITY_SPEC} from '../utils';
-import {ValueRequest} from './requests/value.request';
+import {MarkRequest} from './requests/value.request';
 
 
 export class MarkController {
@@ -278,11 +278,11 @@ export class MarkController {
   async markSolution(
     @inject(SecurityBindings.USER) currentUser: UserProfile,
     @param.path.number('id') id: number,
-    @requestBody() valueRequest: ValueRequest
+    @requestBody() markRequest: MarkRequest
   ) {
     const uid = currentUser[securityId];
 
-    if (valueRequest.value != 0 && valueRequest.value != 2 && valueRequest.value != 5 && valueRequest.value != 6)
+    if (markRequest.value != 0 && markRequest.value != 2 && markRequest.value != 5 && markRequest.value != 6)
       return Promise.reject("Invalid value.")
 
     let userId: number;
@@ -341,7 +341,8 @@ export class MarkController {
         return this.markRepository.create({
           solutionId: id,
           userId: userId,
-          value: valueRequest.value
+          value: markRequest.value,
+          comment: markRequest.comment
         })
       })
       .then((mark) => {
