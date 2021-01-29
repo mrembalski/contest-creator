@@ -1,8 +1,9 @@
 import {authenticate} from '@loopback/authentication';
 import {inject} from '@loopback/core';
 import {repository} from '@loopback/repository';
-import {get, getModelSchemaRef, param, post, requestBody} from '@loopback/rest';
+import {get, getModelSchemaRef, param, patch, post, requestBody} from '@loopback/rest';
 import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
+import {ACCESS_LEVEL} from '../models';
 import {Mark} from '../models/mark.model';
 import {CommissionRepository, ContestRepository, MarkRepository, ParticipationRepository, UserRepository} from '../repositories';
 import {SolutionRepository} from '../repositories/solution.repository';
@@ -28,6 +29,87 @@ export class MarkController {
     @repository(CommissionRepository)
     protected commissionRepository: CommissionRepository,
   ) { }
+
+  @patch('/mark/{id}', {
+    security: OPERATION_SECURITY_SPEC,
+    responses: {
+      '200': {
+        content: {
+          'application/json': {
+            schema: getModelSchemaRef(Mark),
+          },
+        },
+      },
+    },
+  })
+  @authenticate('firebase')
+  async patchMarkById(
+    @inject(SecurityBindings.USER) currentUser: UserProfile,
+    @param.path.number('id') id: number,
+    @requestBody() markRequest: MarkRequest) {
+    const uid = currentUser[securityId];
+    let userId: number;
+    let isAdmin: boolean;
+
+    return this.userRepository.findOne({
+      where: {
+        firebaseUID: uid
+      }
+    })
+      .then((user) => {
+        if (!user)
+          return Promise.reject("No such user.")
+
+        userId = user.id;
+        isAdmin = (user.accessLevel === ACCESS_LEVEL.ADMIN);
+
+        return this.markRepository.findOne({
+          where: {
+            id: id
+          }
+        })
+      })
+      .then((mark) => {
+        if (!mark)
+          return Promise.reject("No such mark.")
+
+        return this.solutionRepository.findOne({
+          where: {
+            id: mark.solutionId
+          }
+        })
+      })
+      .then((solution) => {
+        if (!solution)
+          return Promise.reject("No such solution.")
+
+        return this.taskRepository.findOne({
+          where: {
+            id: solution.taskId
+          }
+        })
+      })
+      .then((task) => {
+        if (!task)
+          return Promise.reject("No such task.")
+
+        return this.contestRepository.findOne({
+          where: {
+            id: task.contestId
+          }
+        })
+      })
+      .then((contest) => {
+        if (!contest)
+          return Promise.reject("No such contest.")
+
+        if (userId != contest.userId && !isAdmin)
+          return Promise.reject("Insufficient permissions.")
+
+        return this.markRepository.updateById(id, markRequest);
+      })
+  }
+
 
   @get('/mark/by_contest/{id}', {
     security: OPERATION_SECURITY_SPEC,
