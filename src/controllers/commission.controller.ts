@@ -25,6 +25,7 @@ export class CommissionController {
       '200': {
         content: {
           'application/json': {
+            schema: getModelSchemaRef(Commission, {includeRelations: true})
           },
         },
       },
@@ -47,25 +48,19 @@ export class CommissionController {
         if (user.accessLevel < ACCESS_LEVEL.ADMIN)
           return Promise.reject("Insufficient permissions.");
 
-        return this.commissionRepository.find();
-      })
-      .then(async (commissions) => {
-        return Promise.resolve(commissions.map(async (commission) => {
-          let new_commission: any = commission;
-          delete new_commission.userId;
-          new_commission.user = await this.userRepository.findOne({
-            where: {
-              id: commission.userId
+        return this.commissionRepository.find({
+          include: [
+            {
+              relation: 'user',
+              scope: {
+                fields: {
+                  displayName: true,
+                  id: true
+                }
+              }
             }
-          })
-          return new_commission
-        }))
-      })
-      .then((ans) => {
-        console.log("XD");
-        console.log(ans);
-        // const res = await ans;
-        return ans;
+          ]
+        })
       })
   }
 
@@ -137,7 +132,7 @@ export class CommissionController {
       '200': {
         content: {
           'application/json': {
-            schema: getModelSchemaRef(Commission),
+            schema: getModelSchemaRef(Commission, {includeRelations: true}),
           },
         },
       },
@@ -174,7 +169,18 @@ export class CommissionController {
         return this.commissionRepository.find({
           where: {
             contestId: contestId
-          }
+          },
+          include: [
+            {
+              relation: 'user',
+              scope: {
+                fields: {
+                  displayName: true,
+                  id: true
+                }
+              }
+            }
+          ]
         })
       })
   }

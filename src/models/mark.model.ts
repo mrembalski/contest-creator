@@ -4,7 +4,7 @@ import {
   model,
   property
 } from '@loopback/repository';
-import {Solution} from './solution.model';
+import {Solution, SolutionWithRelations} from './solution.model';
 import {User, UserWithRelations} from './user.model';
 
 @model()
@@ -71,6 +71,7 @@ export class Mark extends Entity {
 
 export interface MarkRelations {
   user: UserWithRelations;
+  solution: SolutionWithRelations;
 }
 
 export type MarkWithRelations = Mark & MarkRelations;
