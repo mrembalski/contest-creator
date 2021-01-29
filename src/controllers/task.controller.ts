@@ -1,13 +1,14 @@
 import {authenticate} from '@loopback/authentication';
 import {inject} from '@loopback/core';
 import {repository} from '@loopback/repository';
-import {get, getModelSchemaRef, param, post, requestBody} from '@loopback/rest';
+import {del, get, getModelSchemaRef, param, post, requestBody} from '@loopback/rest';
 import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
 import {RequestTask} from '.';
 import {Contest} from '../models/contest.model';
 import {Task} from '../models/task.model';
 import {ACCESS_LEVEL, User} from '../models/user.model';
-import {ContestRepository, ParticipationRepository, UserRepository} from '../repositories';
+import {ContestRepository, MarkRepository, ParticipationRepository, UserRepository} from '../repositories';
+import {SolutionRepository} from '../repositories/solution.repository';
 import {TaskRepository} from '../repositories/task.repository';
 import {OPERATION_SECURITY_SPEC} from '../utils';
 
@@ -21,7 +22,86 @@ export class TaskController {
     protected contestRepository: ContestRepository,
     @repository(ParticipationRepository)
     protected participationRepository: ParticipationRepository,
+    @repository(SolutionRepository)
+    protected solutionRepository: SolutionRepository,
+    @repository(MarkRepository)
+    protected markRepository: MarkRepository,
   ) { }
+
+  @del('/task/{id}', {
+    security: OPERATION_SECURITY_SPEC,
+    responses: {
+      '200': {
+        content: {
+          'application/json': {
+          },
+        },
+      },
+    },
+  })
+  @authenticate('firebase')
+  async delTaskById(
+    @inject(SecurityBindings.USER) currentUser: UserProfile,
+    @param.path.number('id') id: number) {
+    const uid = currentUser[securityId];
+
+    return this.taskRepository.findOne({
+      where: {
+        id: id
+      }
+    })
+      .then((task) => {
+        if (!task)
+          return Promise.reject("No such task.")
+
+        return Promise.all([
+          this.contestRepository.findOne({
+            where: {
+              id: task.id
+            }
+          }),
+          this.userRepository.findOne({
+            where: {
+              firebaseUID: uid
+            }
+          })
+        ])
+      })
+      .then(([contest, user]) => {
+        if (!user)
+          return Promise.reject("No such user with given firebaseUID. Could be deleted.")
+
+        if (!contest)
+          return Promise.reject("No such contest.")
+
+        if (contest.userId != user.id && user.accessLevel < ACCESS_LEVEL.ADMIN)
+          return Promise.reject("Insufficient permissions.")
+
+        return this.solutionRepository.find({
+          where: {
+            taskId: id
+          }
+        })
+      })
+      .then((solutions) => {
+        const solutionsIds = solutions.map((solution) => solution.id);
+
+        return Promise.all([
+          this.markRepository.find({
+            where: {
+              solutionId: {
+                inq: solutionsIds
+              }
+            }
+          }),
+          this.taskRepository.deleteById(id),
+          solutions.map((solution) => this.solutionRepository.delete(solution)),
+        ])
+      })
+      .then(([marks, a, b]) => {
+        return marks.map((mark) => this.markRepository.delete(mark))
+      })
+  }
 
   @get('/task/all', {
     security: OPERATION_SECURITY_SPEC,
