@@ -17,7 +17,6 @@ import {CustomRejectProvider, CustomSendProvider} from './providers';
 import {BaseSequence} from './sequence';
 import {FirebaseAuthenticationStrategy} from './utils/firebase.authentication.strategy';
 import {SECURITY_SCHEME_SPEC} from './utils/security-spec';
-
 export interface PackageInfo {
   name: string;
   version: string;

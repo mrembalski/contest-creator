@@ -28,7 +28,7 @@ export class ParticipationController {
       '200': {
         content: {
           'application/json': {
-            schema: getModelSchemaRef(Participation),
+            schema: getModelSchemaRef(Participation, {includeRelations: true}),
           },
         },
       },
@@ -51,7 +51,19 @@ export class ParticipationController {
         if (user.accessLevel < ACCESS_LEVEL.ADMIN)
           return Promise.reject("Insufficient permissions.");
 
-        return this.participationRepository.find();
+        return this.participationRepository.find({
+          include: [
+            {
+              relation: 'user',
+              scope: {
+                fields: {
+                  displayName: true,
+                  id: true
+                }
+              }
+            }
+          ]
+        })
       })
   }
 
@@ -98,4 +110,64 @@ export class ParticipationController {
         })
       })
   }
+
+  @get('/participation/by_contest/{contest_id}', {
+    security: OPERATION_SECURITY_SPEC,
+    responses: {
+      '200': {
+        content: {
+          'application/json': {
+            schema: getModelSchemaRef(Participation, {includeRelations: true}),
+          },
+        },
+      },
+    },
+  })
+  @authenticate('firebase')
+  async getParticipationByContestId(
+    @param.path.number('contest_id') contestId: number,
+    @inject(SecurityBindings.USER) currentUser: UserProfile) {
+    const uid = currentUser[securityId];
+
+    return Promise.all([
+      this.userRepository.findOne({
+        where: {
+          firebaseUID: uid
+        }
+      }),
+      this.contestRepository.findOne({
+        where: {
+          id: contestId
+        }
+      })
+    ])
+      .then(([user, contest]: [User | null, Contest | null]) => {
+        if (!user)
+          return Promise.reject("No such user with given firebaseUID. Could be deleted.")
+
+        if (!contest)
+          return Promise.reject("No such contest with given id. Could be deleted.")
+
+        if (contest.userId !== user.id && user.accessLevel < ACCESS_LEVEL.ADMIN)
+          return Promise.reject("Insufficient permissions.");
+
+        return this.participationRepository.find({
+          where: {
+            contestId: contestId
+          },
+          include: [
+            {
+              relation: 'user',
+              scope: {
+                fields: {
+                  displayName: true,
+                  id: true
+                }
+              }
+            }
+          ]
+        })
+      })
+  }
+
 }
