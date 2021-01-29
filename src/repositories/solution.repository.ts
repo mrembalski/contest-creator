@@ -1,6 +1,8 @@
 import {Getter, inject} from '@loopback/core';
 import {BelongsToAccessor, DefaultCrudRepository, repository} from '@loopback/repository';
+import {MarkRepository} from '.';
 import {DbDataSource} from '../datasources';
+import {Mark} from '../models';
 import {Solution, SolutionRelations} from '../models/solution.model';
 import {Task} from '../models/task.model';
 import {User} from '../models/user.model';
@@ -13,7 +15,7 @@ export class SolutionRepository extends DefaultCrudRepository<
   SolutionRelations
   > {
   public readonly user: BelongsToAccessor<User, typeof User.prototype.id>;
-  public readonly solution: BelongsToAccessor<Solution, typeof Solution.prototype.id>;
+  public readonly mark: BelongsToAccessor<Mark, typeof Mark.prototype.id>;
   public readonly task: BelongsToAccessor<Task, typeof Task.prototype.id>;
 
   constructor(
@@ -22,8 +24,8 @@ export class SolutionRepository extends DefaultCrudRepository<
     userRepositoryGetter: Getter<UserRepository>,
     @repository.getter('TaskRepository')
     taskRepositoryGetter: Getter<TaskRepository>,
-    @repository.getter('SolutionRepository')
-    solutionRepositoryGetter: Getter<SolutionRepository>,
+    @repository.getter('MarkRepository')
+    markRepositoryGetter: Getter<MarkRepository>,
 
     // @repository(ContestRepository)
     // protected contestRepository: ContestRepository,
@@ -38,9 +40,9 @@ export class SolutionRepository extends DefaultCrudRepository<
 
     this.registerInclusionResolver('user', this.user.inclusionResolver);
 
-    this.solution = this.createBelongsToAccessorFor('solution', solutionRepositoryGetter);
+    this.mark = this.createBelongsToAccessorFor('mark', markRepositoryGetter);
 
-    this.registerInclusionResolver('solution', this.solution.inclusionResolver);
+    this.registerInclusionResolver('mark', this.mark.inclusionResolver);
 
     this.task = this.createBelongsToAccessorFor('task', taskRepositoryGetter);
 
