@@ -25,7 +25,9 @@ export class CommissionController {
       '200': {
         content: {
           'application/json': {
-            schema: getModelSchemaRef(Commission, {includeRelations: true})
+            schema: getModelSchemaRef(Commission, {
+              includeRelations: true
+            })
           },
         },
       },

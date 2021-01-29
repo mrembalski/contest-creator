@@ -4,6 +4,7 @@ import {
   model,
   property
 } from '@loopback/repository';
+import {Mark} from '.';
 import {Task, TaskWithRelations} from './task.model';
 import {User, UserWithRelations} from './user.model';
 
@@ -33,6 +34,10 @@ export class Solution extends Entity {
   //no neet to be defined, it's already done in user
   @belongsTo(() => User)
   userId: number;
+
+  //no neet to be defined, it's already done in mark
+  @belongsTo(() => Mark)
+  markId: number;
 
   @property({
     description: 'solution\'s text',

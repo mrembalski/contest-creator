@@ -344,6 +344,11 @@ export class MarkController {
           value: valueRequest.value
         })
       })
+      .then((mark) => {
+        return this.solutionRepository.updateById(id, {
+          markId: mark.id
+        })
+      })
   }
 
 }

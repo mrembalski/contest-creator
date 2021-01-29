@@ -192,6 +192,7 @@ export class SolutionController {
         return this.solutionRepository.create({
           taskId: taskId,
           userId: adder.id,
+          markId: undefined,
           text: solution.text
         })
       })
