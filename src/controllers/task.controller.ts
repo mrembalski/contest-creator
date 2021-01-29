@@ -57,7 +57,7 @@ export class TaskController {
         return Promise.all([
           this.contestRepository.findOne({
             where: {
-              id: task.id
+              id: task.contestId
             }
           }),
           this.userRepository.findOne({
