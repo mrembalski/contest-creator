@@ -57,7 +57,13 @@ export class SolutionController {
         if (user.accessLevel < ACCESS_LEVEL.ADMIN)
           return Promise.reject("Insufficient permissions.");
 
-        return this.solutionRepository.find();
+        return this.solutionRepository.find({
+          include: [
+            {
+              relation: 'mark'
+            }
+          ]
+        });
       })
   }
 
@@ -120,32 +126,11 @@ export class SolutionController {
               inq: tasksIds
             },
           },
-        })
-      })
-      .then((solutions) => {
-
-        solutions_ = solutions;
-        const promises =
-          solutions.map((solution) => {
-            return this.markRepository.findOne({
-              where: {
-                solutionId: solution.id
-              }
-            })
-          })
-
-        return Promise.all(promises);
-      })
-      .then((marks) => {
-        return solutions_.map((solution) => {
-          let myMark = marks.find((element) => {
-            element && element.solutionId == solution.id
-          })
-
-          return {
-            ...solution,
-            mark: myMark
-          }
+          include: [
+            {
+              relation: 'mark'
+            }
+          ]
         })
       })
   }
