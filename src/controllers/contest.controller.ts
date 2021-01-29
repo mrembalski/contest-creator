@@ -1,11 +1,13 @@
 import {authenticate} from '@loopback/authentication';
 import {inject} from '@loopback/core';
 import {repository} from '@loopback/repository';
-import {get, getModelSchemaRef, param, post, requestBody} from '@loopback/rest';
+import {del, get, getModelSchemaRef, param, post, requestBody} from '@loopback/rest';
 import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
 import {Contest} from '../models/contest.model';
 import {ACCESS_LEVEL} from '../models/user.model';
-import {ContestRepository, ParticipationRepository, UserRepository} from '../repositories';
+import {CommissionRepository, ContestRepository, MarkRepository, ParticipationRepository, UserRepository} from '../repositories';
+import {SolutionRepository} from '../repositories/solution.repository';
+import {TaskRepository} from '../repositories/task.repository';
 import {OPERATION_SECURITY_SPEC} from '../utils';
 import {RequestContest} from './requests';
 const moment = require('moment')
@@ -15,9 +17,113 @@ export class ContestController {
     protected userRepository: UserRepository,
     @repository(ContestRepository)
     protected contestRepository: ContestRepository,
+    @repository(TaskRepository)
+    protected taskRepository: TaskRepository,
+    @repository(CommissionRepository)
+    protected commissionRepository: CommissionRepository,
+    @repository(SolutionRepository)
+    protected solutionRepository: SolutionRepository,
     @repository(ParticipationRepository)
     protected participationRepository: ParticipationRepository,
+    @repository(MarkRepository)
+    protected markRepository: MarkRepository,
   ) {
+  }
+
+  @del('/contest/{id}', {
+    security: OPERATION_SECURITY_SPEC,
+    responses: {
+      '200': {
+        content: {
+          'application/json': {
+          },
+        },
+      },
+    },
+  })
+  @authenticate('firebase')
+  async delContestById(
+    @inject(SecurityBindings.USER) currentUser: UserProfile,
+    @param.path.number('id') id: number) {
+    const uid = currentUser[securityId];
+
+    return Promise.all([
+      this.userRepository.findOne({
+        where: {
+          firebaseUID: uid
+        }
+      }),
+      this.contestRepository.findOne({
+        where: {
+          id: id
+        }
+      })
+    ])
+      .then(([user, contest]) => {
+        if (!user)
+          return Promise.reject("No such user with given firebaseUID. Could be deleted.")
+
+        if (!contest)
+          return Promise.reject("No such contest.")
+
+        if (contest.userId != user.id && user.accessLevel < ACCESS_LEVEL.ADMIN)
+          return Promise.reject("Insufficient permissions.")
+
+        return this.contestRepository.deleteById(id)
+      })
+      .then(() => {
+        return Promise.all([
+          this.taskRepository.find({
+            where: {
+              contestId: id
+            }
+          }),
+          this.commissionRepository.find({
+            where: {
+              contestId: id
+            }
+          }),
+          this.participationRepository.find({
+            where: {
+              contestId: id
+            }
+          })
+        ])
+      })
+      .then(([tasks, commissions, participations]) => {
+        const tasksIds = tasks.map((task) => task.id);
+
+        return Promise.all([
+          this.solutionRepository.find({
+            where: {
+              taskId: {
+                inq: tasksIds
+              }
+            }
+          }),
+          tasks.map((task) => this.taskRepository.delete(task)),
+          commissions.map((commission) => this.commissionRepository.delete(commission)),
+          participations.map((participation) => this.participationRepository.delete(participation)),
+        ])
+      })
+      .then(([solutions, a, b, c]) => {
+        const solutionsIds = solutions.map((solution) => solution.id);
+
+        return Promise.all([
+          this.markRepository.find({
+            where: {
+              solutionId: {
+                inq: solutionsIds
+              }
+            }
+          }),
+          solutions.map((solution) => this.solutionRepository.delete(solution)),
+        ])
+      })
+      .then(([marks, a]) => {
+        return marks.map((mark) => this.markRepository.delete(mark))
+      })
+
   }
 
   @get('/contest/all', {

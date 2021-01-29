@@ -262,7 +262,7 @@ export class MarkController {
   }
 
 
-  @post('/mark/by_solution/{id}/{value}', {
+  @post('/mark/by_solution/{id}', {
     security: OPERATION_SECURITY_SPEC,
     responses: {
       '200': {
