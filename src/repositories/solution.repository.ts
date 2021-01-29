@@ -13,6 +13,7 @@ export class SolutionRepository extends DefaultCrudRepository<
   SolutionRelations
   > {
   public readonly user: BelongsToAccessor<User, typeof User.prototype.id>;
+  public readonly solution: BelongsToAccessor<Solution, typeof Solution.prototype.id>;
   public readonly task: BelongsToAccessor<Task, typeof Task.prototype.id>;
 
   constructor(
@@ -21,6 +22,8 @@ export class SolutionRepository extends DefaultCrudRepository<
     userRepositoryGetter: Getter<UserRepository>,
     @repository.getter('TaskRepository')
     taskRepositoryGetter: Getter<TaskRepository>,
+    @repository.getter('SolutionRepository')
+    solutionRepositoryGetter: Getter<SolutionRepository>,
 
     // @repository(ContestRepository)
     // protected contestRepository: ContestRepository,
@@ -34,6 +37,10 @@ export class SolutionRepository extends DefaultCrudRepository<
     this.user = this.createBelongsToAccessorFor('user', userRepositoryGetter);
 
     this.registerInclusionResolver('user', this.user.inclusionResolver);
+
+    this.solution = this.createBelongsToAccessorFor('solution', solutionRepositoryGetter);
+
+    this.registerInclusionResolver('solution', this.solution.inclusionResolver);
 
     this.task = this.createBelongsToAccessorFor('task', taskRepositoryGetter);
 
