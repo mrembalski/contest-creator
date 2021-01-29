@@ -50,6 +50,7 @@ export class MarkController {
     const uid = currentUser[securityId];
     let userId: number;
     let isAdmin: boolean;
+    let isAdminOfContest: boolean;
 
     return this.userRepository.findOne({
       where: {
@@ -103,7 +104,17 @@ export class MarkController {
         if (!contest)
           return Promise.reject("No such contest.")
 
-        if (userId != contest.userId && !isAdmin)
+        isAdminOfContest = (userId === contest.userId);
+
+        return this.commissionRepository.findOne({
+          where: {
+            userId: userId,
+            contestId: contest.id
+          }
+        })
+      })
+      .then((commission) => {
+        if (!commission && !isAdminOfContest && !isAdmin)
           return Promise.reject("Insufficient permissions.")
 
         return this.markRepository.updateById(id, markRequest);
