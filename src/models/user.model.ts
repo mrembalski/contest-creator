@@ -61,10 +61,9 @@ export class User extends Entity {
 
   @property({
     type: 'string',
-    id: true,
     required: true,
     postgresql: {
-      columnName: 'email',
+      columnName: 'user_email',
       datatype: 'character varying',
       dataLength: 100,
       nullable: 'NO',
