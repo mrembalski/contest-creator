@@ -1,11 +1,12 @@
 import {Getter, inject} from '@loopback/core';
 import {BelongsToAccessor, DefaultCrudRepository, repository} from '@loopback/repository';
-import {MarkRepository} from '.';
 import {DbDataSource} from '../datasources';
 import {Mark} from '../models';
 import {Solution, SolutionRelations} from '../models/solution.model';
 import {Task} from '../models/task.model';
 import {User} from '../models/user.model';
+import {ContestRepository} from './contest.repository';
+import {MarkRepository} from './mark.repository';
 import {TaskRepository} from './task.repository';
 import {UserRepository} from './user.repository';
 
@@ -27,12 +28,12 @@ export class SolutionRepository extends DefaultCrudRepository<
     @repository.getter('MarkRepository')
     markRepositoryGetter: Getter<MarkRepository>,
 
-    // @repository(ContestRepository)
-    // protected contestRepository: ContestRepository,
-    // @repository(TaskRepository)
-    // protected taskRepository: TaskRepository,
-    // @repository(UserRepository)
-    // protected userRepository: UserRepository
+    @repository(ContestRepository)
+    protected contestRepository: ContestRepository,
+    @repository(TaskRepository)
+    protected taskRepository: TaskRepository,
+    @repository(UserRepository)
+    protected userRepository: UserRepository
   ) {
     super(Solution, dataSource);
 
@@ -49,49 +50,49 @@ export class SolutionRepository extends DefaultCrudRepository<
     this.registerInclusionResolver('task', this.task.inclusionResolver);
 
   }
-  // isDateAfterToday(date: Date) {
-  //   return new Date(date.toDateString()) > new Date(new Date().toDateString());
-  // }
+  isDateAfterToday(date: Date) {
+    return new Date(date.toDateString()) > new Date(new Date().toDateString());
+  }
 
-  // //#TRIGGER
-  // definePersistedModel(solutionEntity: typeof Solution) {
-  //   const solutionClass = super.definePersistedModel(solutionEntity);
+  //#TRIGGER
+  definePersistedModel(solutionEntity: typeof Solution) {
+    const solutionClass = super.definePersistedModel(solutionEntity);
 
-  //   solutionClass.observe('before save', async ctx => {
-  //     console.log('SOLUTION - BEFORE SAVE - TRIGGER');
+    solutionClass.observe('before save', async ctx => {
+      console.log('SOLUTION - BEFORE SAVE - TRIGGER');
 
-  //     const task = await this.taskRepository.findOne({
-  //       where: {
-  //         id: ctx.instance.taskId
-  //       }
-  //     })
+      const task = await this.taskRepository.findOne({
+        where: {
+          id: ctx.instance.taskId
+        }
+      })
 
-  //     if (!task) {
-  //       console.log('SOLUTION - BEFORE SAVE - INVALID DATA');
-  //       throw "No task with given id."
-  //     }
+      if (!task) {
+        console.log('SOLUTION - BEFORE SAVE - INVALID DATA');
+        throw "No task with given id."
+      }
 
-  //     const contest = await this.contestRepository.findOne({
-  //       where: {
-  //         id: task.contestId
-  //       }
-  //     })
+      const contest = await this.contestRepository.findOne({
+        where: {
+          id: task.contestId
+        }
+      })
 
-  //     if (!contest) {
-  //       console.log('SOLUTION - BEFORE SAVE - INVALID DATA');
-  //       throw "No contest with given id."
-  //     }
+      if (!contest) {
+        console.log('SOLUTION - BEFORE SAVE - INVALID DATA');
+        throw "No contest with given id."
+      }
 
-  //     const now = new Date();
+      const now = new Date();
 
-  //     if (now.getTime() < contest.startDate.getTime()) {
-  //       console.log('SOLUTION - BEFORE SAVE - INVALID DATA');
-  //       throw "Contest not started yet."
-  //     }
+      if (now.getTime() < contest.startDate.getTime()) {
+        console.log('SOLUTION - BEFORE SAVE - INVALID DATA');
+        throw "Contest not started yet."
+      }
 
-  //     console.log('SOLUTION - SAVING - TRIGGER END');
-  //   });
+      console.log('SOLUTION - SAVING - TRIGGER END');
+    });
 
-  //   return solutionClass;
-  // }
+    return solutionClass;
+  }
 }

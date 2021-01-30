@@ -23,6 +23,10 @@ export class ParticipationRepository extends DefaultCrudRepository<
     contestRepositoryGetter: Getter<ContestRepository>,
     @repository.getter('UserRepository')
     userRepositoryGetter: Getter<UserRepository>,
+    @repository(UserRepository)
+    protected userRepository: UserRepository,
+    @repository(ContestRepository)
+    protected contestRepository: ContestRepository,
   ) {
     super(Participation, dataSource);
 
@@ -34,4 +38,52 @@ export class ParticipationRepository extends DefaultCrudRepository<
 
     this.registerInclusionResolver('user', this.user.inclusionResolver);
   }
+
+  //#TRIGGER
+  definePersistedModel(participationEntity: typeof Participation) {
+    const participationClass = super.definePersistedModel(participationEntity);
+
+    participationClass.observe('before save', async ctx => {
+      console.log('PARTICIPATION - BEFORE SAVE - TRIGGER');
+
+      const contest = await this.contestRepository.findOne({
+        where: {
+          id: ctx.instance.contestId
+        }
+      })
+
+      if (!contest) {
+        console.log('PARTICIPATION - BEFORE SAVE - INVALID DATA');
+        throw "No contest with given id."
+      }
+
+      const user = await this.userRepository.findOne({
+        where: {
+          id: ctx.instance.userId
+        }
+      })
+
+      if (!user) {
+        console.log('PARTICIPATION - BEFORE SAVE - INVALID DATA');
+        throw "No user with given id."
+      }
+
+      const commission = await this.findOne({
+        where: {
+          userId: user.id,
+          contestId: contest.id
+        }
+      })
+
+      if (commission) {
+        console.log('PARTICIPATION - BEFORE SAVE - INVALID DATA');
+        throw "Given commission already exists."
+      }
+
+      console.log('PARTICIPATION - SAVING - TRIGGER END');
+    });
+
+    return participationClass;
+  }
+
 }
