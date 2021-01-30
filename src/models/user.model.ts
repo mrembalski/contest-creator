@@ -68,9 +68,21 @@ export class User extends Entity {
       datatype: 'character varying',
       dataLength: 100,
       nullable: 'NO',
+      unique: 'YES'
     },
   })
   email: string;
+
+  @property({
+    type: 'string',
+    postgresql: {
+      columnName: 'email',
+      datatype: 'character varying',
+      dataLength: 100,
+      nullable: 'NO',
+    },
+  })
+  photoURL: string;
 
   @property({
     type: 'number',

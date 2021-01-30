@@ -14,12 +14,9 @@ export class FirebaseAuthenticationStrategy implements AuthenticationStrategy {
 
   async authenticate(request: Request): Promise<UserProfile | undefined> {
     const token = this.extractCredencials(request);
-    return this.getIdToken(token)
-      .then((idToken: string) => {
-        return admin
-          .auth()
-          .verifyIdToken(idToken)
-      })
+    return admin
+      .auth()
+      .verifyIdToken(token)
       //https://firebase.google.com/docs/reference/admin/node/admin.auth.DecodedIdToken#uid
       .then((decodedToken: any) => {
         const uid = decodedToken.uid;
@@ -34,19 +31,6 @@ export class FirebaseAuthenticationStrategy implements AuthenticationStrategy {
         throw new HttpErrors.Unauthorized(`Authorization unsuccessful.`);
       });
   }
-
-  async getIdToken(customToken: string) {
-    const res = await rp({
-      url: `https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyCustomToken?key=${webApiKey}`,
-      method: 'POST',
-      body: {
-        token: customToken,
-        returnSecureToken: true
-      },
-      json: true,
-    });
-    return res.idToken;
-  };
 
   extractCredencials(request: Request): string {
     //making sure there is a token
