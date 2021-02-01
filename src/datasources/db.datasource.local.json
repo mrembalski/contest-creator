@@ -1,12 +1,12 @@
 {
   "name": "heroku",
   "connector": "postgresql",
-  "url": "postgres://mfmhzdfvlttqoi:e7733a2c23a0786ac6c3c9570a642e4c32204057ead01b898acd55f28de21122@ec2-54-228-209-117.eu-west-1.compute.amazonaws.com:5432/d46rolsf3a908r",
-  "host": "ec2-54-228-209-117.eu-west-1.compute.amazonaws.com",
+  "url": "postgres://wgjhgmbixbysgc:33d8ad0b652c0563465f1a16feebf00ea08895d2af59738c4b270c956e8fa93d@ec2-52-4-177-4.compute-1.amazonaws.com:5432/dfr38ltvmh2abv",
+  "host": "ec2-52-4-177-4.compute-1.amazonaws.com",
   "port": 5432,
-  "user": "mfmhzdfvlttqoi",
-  "password": "e7733a2c23a0786ac6c3c9570a642e4c32204057ead01b898acd55f28de21122",
-  "database": "contest_creator",
+  "user": "wgjhgmbixbysgc",
+  "password": "33d8ad0b652c0563465f1a16feebf00ea08895d2af59738c4b270c956e8fa93d",
+  "database": "dfr38ltvmh2abv",
   "schema": "dev",
   "debug": true
 }
