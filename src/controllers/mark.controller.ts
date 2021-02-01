@@ -205,7 +205,18 @@ export class MarkController {
             solutionId: {
               inq: solutionIds
             }
-          }
+          },
+          include: [
+            {
+              relation: 'user',
+              scope: {
+                fields: {
+                  displayName: true,
+                  id: true
+                }
+              }
+            }
+          ]
         })
       })
   }
@@ -271,7 +282,18 @@ export class MarkController {
             solutionId: {
               inq: solutionIds
             }
-          }
+          },
+          include: [
+            {
+              relation: 'user',
+              scope: {
+                fields: {
+                  displayName: true,
+                  id: true
+                }
+              }
+            }
+          ]
         })
       })
   }
@@ -349,7 +371,18 @@ export class MarkController {
             solutionId: {
               inq: solutionIds
             }
-          }
+          },
+          include: [
+            {
+              relation: 'user',
+              scope: {
+                fields: {
+                  displayName: true,
+                  id: true
+                }
+              }
+            }
+          ]
         })
       })
   }

@@ -370,7 +370,19 @@ export class ContestController {
             id: {
               inq: commissionsIds
             }
-          }
+          },
+          order: orderQuery,
+          include: [
+            {
+              relation: 'user',
+              scope: {
+                fields: {
+                  displayName: true,
+                  id: true
+                }
+              }
+            }
+          ]
         })
       })
   }
