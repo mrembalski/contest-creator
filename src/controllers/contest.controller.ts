@@ -317,7 +317,7 @@ export class ContestController {
       })
   }
 
-  @get('/contest/my/as_user', {
+  @get('/contest/my/as_commission', {
     security: OPERATION_SECURITY_SPEC,
     responses: {
       '200': {
@@ -330,7 +330,7 @@ export class ContestController {
     },
   })
   @authenticate('firebase')
-  async getMyContestsAsUser(
+  async getMyContestsAsCommission(
     @inject(SecurityBindings.USER) currentUser: UserProfile,
     @param.header.string('orderby') order?: string) {
     const uid = currentUser[securityId];
@@ -345,25 +345,74 @@ export class ContestController {
         if (!user)
           return Promise.reject("No such user with given firebaseUID. Could be deleted.")
 
-        return this.participationRepository.find({
+        return this.commissionRepository.find({
           where: {
             userId: user.id
           }
         })
-          .then((participations) => {
-            const contestIds = participations.map((participation) => {
-              return participation.contestId
-            })
-
-            return this.contestRepository.find({
-              where: {
-                id: {
-                  inq: contestIds
-                }
-              },
-              order: orderQuery
-            })
-          })
       })
-  }
+      .then((commissions) => {
+        const commissionsIds = commissions.map(commission => commission.id);
+
+        return this.contestRepository.find({
+          where: {
+            id: {
+              inq: commissionsIds
+            }
+          }
+        })
+      })
+  })
+}
+
+
+@get('/contest/my/as_user', {
+  security: OPERATION_SECURITY_SPEC,
+  responses: {
+    '200': {
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(Contest),
+        },
+      },
+    },
+  },
+})
+@authenticate('firebase')
+async getMyContestsAsUser(
+    @inject(SecurityBindings.USER) currentUser: UserProfile,
+    @param.header.string('orderby') order ?: string) {
+  const uid = currentUser[securityId];
+  const orderQuery = getOrder(order);
+
+  return this.userRepository.findOne({
+    where: {
+      firebaseUID: uid
+    }
+  })
+    .then((user) => {
+      if (!user)
+        return Promise.reject("No such user with given firebaseUID. Could be deleted.")
+
+      return this.participationRepository.find({
+        where: {
+          userId: user.id
+        }
+      })
+        .then((participations) => {
+          const contestIds = participations.map((participation) => {
+            return participation.contestId
+          })
+
+          return this.contestRepository.find({
+            where: {
+              id: {
+                inq: contestIds
+              }
+            },
+            order: orderQuery
+          })
+        })
+    })
+}
 }

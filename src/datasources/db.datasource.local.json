@@ -1,10 +1,6 @@
 {
-  "name": "heroku",
-  "connector": "postgresql",
-  "url": "postgres://wgjhgmbixbysgc:33d8ad0b652c0563465f1a16feebf00ea08895d2af59738c4b270c956e8fa93d@ec2-52-4-177-4.compute-1.amazonaws.com:5432/dfr38ltvmh2abv",
-  "host": "ec2-52-4-177-4.compute-1.amazonaws.com",
-  "port": 5432,
-  "user": "wgjhgmbixbysgc",
-  "password": "33d8ad0b652c0563465f1a16feebf00ea08895d2af59738c4b270c956e8fa93d",
-  "database": "dfr38ltvmh2abv"
+  "name": "test",
+  "connector": "memory",
+  "localStorage": "",
+  "file": "./db.local.json"
 }
