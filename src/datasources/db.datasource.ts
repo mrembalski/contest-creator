@@ -6,6 +6,7 @@ import {
 } from '@loopback/core';
 import {juggler} from '@loopback/repository';
 import devConfig from './db.datasource.dev.json';
+import localConfig from './db.datasource.local.json';
 const admin = require('firebase-admin');
 
 export class DataSourceSettings {
@@ -16,11 +17,16 @@ export class DataSourceSettings {
 }
 
 let config: DataSourceSettings;
-
-console.log(' --- Database in Dev Mode --- ');
-config = devConfig;
-console.log(config);
-
+if (process.env.NODE_ENV === 'DEV') {
+  console.log(' --- Database in Dev Mode --- ');
+  config = devConfig;
+  console.log(config);
+}
+else {
+  console.log(' --- Database in Local Mode --- ');
+  config = localConfig;
+  console.log(config);
+}
 
 @lifeCycleObserver('datasource')
 export class DbDataSource

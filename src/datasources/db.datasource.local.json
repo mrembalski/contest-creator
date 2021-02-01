@@ -1,6 +1,12 @@
 {
-  "name": "test",
-  "connector": "memory",
-  "localStorage": "",
-  "file": "./db.local.json"
+  "name": "heroku",
+  "connector": "postgresql",
+  "url": "postgres://mfmhzdfvlttqoi:e7733a2c23a0786ac6c3c9570a642e4c32204057ead01b898acd55f28de21122@ec2-54-228-209-117.eu-west-1.compute.amazonaws.com:5432/d46rolsf3a908r",
+  "host": "ec2-54-228-209-117.eu-west-1.compute.amazonaws.com",
+  "port": 5432,
+  "user": "mfmhzdfvlttqoi",
+  "password": "e7733a2c23a0786ac6c3c9570a642e4c32204057ead01b898acd55f28de21122",
+  "database": "contest_creator",
+  "schema": "dev",
+  "debug": true
 }
