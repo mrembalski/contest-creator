@@ -120,4 +120,48 @@ export class UserController {
         return this.userRepository.find();
       })
   }
+
+
+  @get('/user/all/{access_level}', {
+    security: OPERATION_SECURITY_SPEC,
+    responses: {
+      '200': {
+        content: {
+          'application/json': {
+            schema: getModelSchemaRef(User),
+          },
+        },
+      },
+    },
+  })
+  @authenticate('firebase')
+  async getAllByAccess(
+    @inject(SecurityBindings.USER) currentUser: UserProfile,
+    @param.path.number('access_level') accessLevel: number) {
+
+    if (accessLevel != 1 && accessLevel != 2 && accessLevel != 3)
+      return Promise.reject("No such access level");
+
+    const uid = currentUser[securityId];
+
+    return this.userRepository.findOne({
+      where: {
+        firebaseUID: uid
+      }
+    })
+      .then((user) => {
+        if (!user)
+          return Promise.reject("No such user with given firebaseUID. Could be deleted.")
+
+        if (user.accessLevel < ACCESS_LEVEL.ADMIN)
+          return Promise.reject("Insufficient permissions.");
+
+        return this.userRepository.find({
+          where: {
+            accessLevel
+          }
+        });
+      })
+  }
+
 }
