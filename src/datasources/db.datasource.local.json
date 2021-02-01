@@ -6,7 +6,5 @@
   "port": 5432,
   "user": "wgjhgmbixbysgc",
   "password": "33d8ad0b652c0563465f1a16feebf00ea08895d2af59738c4b270c956e8fa93d",
-  "database": "dfr38ltvmh2abv",
-  "schema": "dev",
-  "debug": true
+  "database": "dfr38ltvmh2abv"
 }
