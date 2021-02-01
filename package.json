@@ -13,7 +13,7 @@
     "npm": "latest"
   },
   "scripts": {
-    "heroku-postbuild": "npm run build NODE_ENV=LOCAL node -r source-map-support/register .",
+    "heroku-postbuild": "npm run build && NODE_ENV=LOCAL node -r source-map-support/register .",
     "build": "lb-tsc",
     "build:watch": "lb-tsc --watch",
     "lint": "npm run prettier:check && npm run eslint",
