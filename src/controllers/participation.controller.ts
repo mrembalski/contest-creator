@@ -1,13 +1,14 @@
 import {authenticate} from '@loopback/authentication';
 import {inject} from '@loopback/core';
 import {repository} from '@loopback/repository';
-import {get, getModelSchemaRef, param} from '@loopback/rest';
+import {del, get, getModelSchemaRef, param} from '@loopback/rest';
 import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
 import {Contest} from '../models/contest.model';
 import {Participation} from '../models/participation.model';
 import {ACCESS_LEVEL, User} from '../models/user.model';
-import {ContestRepository, UserRepository} from '../repositories';
+import {ContestRepository, MarkRepository, UserRepository} from '../repositories';
 import {ParticipationRepository} from '../repositories/participation.repository';
+import {SolutionRepository} from '../repositories/solution.repository';
 import {OPERATION_SECURITY_SPEC} from '../utils';
 
 export class ParticipationController {
@@ -18,8 +19,89 @@ export class ParticipationController {
     protected userRepository: UserRepository,
     @repository(ContestRepository)
     protected contestRepository: ContestRepository,
-
+    @repository(SolutionRepository)
+    protected solutionRepository: SolutionRepository,
+    @repository(MarkRepository)
+    protected markRepository: MarkRepository
   ) { }
+
+  @del('/participation/{id}', {
+    security: OPERATION_SECURITY_SPEC,
+    responses: {
+      '200': {
+        content: {
+          'application/json': {
+          },
+        },
+      },
+    },
+  })
+  @authenticate('firebase')
+  async delTaskById(
+    @inject(SecurityBindings.USER) currentUser: UserProfile,
+    @param.path.number('id') id: number) {
+    const uid = currentUser[securityId];
+    let userId;
+
+    return this.participationRepository.findOne({
+      where: {
+        id: id
+      }
+    })
+      .then((participation) => {
+        if (!participation)
+          return Promise.reject("No such participation.")
+
+        return Promise.all([
+          this.contestRepository.findOne({
+            where: {
+              id: participation.contestId
+            }
+          }),
+          this.userRepository.findOne({
+            where: {
+              firebaseUID: uid
+            }
+          })
+        ])
+      })
+      .then(([contest, user]) => {
+        if (!user)
+          return Promise.reject("No such user with given firebaseUID. Could be deleted.")
+
+        if (!contest)
+          return Promise.reject("No such contest.")
+
+        userId = user.id;
+
+        if (contest.userId != userId && user.accessLevel < ACCESS_LEVEL.ADMIN)
+          return Promise.reject("Insufficient permissions.")
+
+        return this.solutionRepository.find({
+          where: {
+            userId: userId
+          }
+        })
+      })
+      .then((solutions) => {
+        const solutionsIds = solutions.map((solution) => solution.id);
+
+        return Promise.all([
+          this.markRepository.find({
+            where: {
+              solutionId: {
+                inq: solutionsIds
+              }
+            }
+          }),
+          this.participationRepository.deleteById(id),
+          solutions.map((solution) => this.solutionRepository.delete(solution)),
+        ])
+      })
+      .then(([marks, a, b]) => {
+        return marks.map((mark) => this.markRepository.delete(mark))
+      })
+  }
 
 
   @get('/participation/all', {
