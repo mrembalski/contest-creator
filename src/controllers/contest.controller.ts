@@ -164,9 +164,9 @@ export class ContestController {
             {
               relation: 'user',
               scope: {
-                fields: {
-                  displayName: true
-                }
+                fields: [
+                  'displayName'
+                ]
               }
             }
           ]
