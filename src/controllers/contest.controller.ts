@@ -163,11 +163,6 @@ export class ContestController {
           include: [
             {
               relation: 'user',
-              scope: {
-                fields: [
-                  'displayName'
-                ]
-              }
             }
           ]
         });
