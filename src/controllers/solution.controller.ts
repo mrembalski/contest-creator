@@ -3,7 +3,7 @@ import {inject} from '@loopback/core';
 import {repository} from '@loopback/repository';
 import {get, getModelSchemaRef, param, post, requestBody} from '@loopback/rest';
 import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
-import {Solution, SolutionRelations} from '../models/solution.model';
+import {Solution} from '../models/solution.model';
 import {Task} from '../models/task.model';
 import {ACCESS_LEVEL, User} from '../models/user.model';
 import {ContestRepository, UserRepository} from '../repositories';
@@ -86,10 +86,10 @@ export class SolutionController {
   @authenticate('firebase')
   async getSolutionsToContest(
     @inject(SecurityBindings.USER) currentUser: UserProfile,
-    @param.path.string("id") id: number
-  ) {
+    @param.path.string("id") id: number,
+    @param.header.string('orderby') order?: string) {
     const uid = currentUser[securityId];
-    let solutions_: (Solution & SolutionRelations)[];
+    const orderQuery = getOrder(order);
 
     return Promise.all([
       this.userRepository.findOne({
@@ -134,7 +134,8 @@ export class SolutionController {
             {
               relation: 'mark'
             }
-          ]
+          ],
+          order: orderQuery
         })
       })
   }

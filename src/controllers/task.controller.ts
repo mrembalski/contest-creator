@@ -11,6 +11,7 @@ import {ContestRepository, MarkRepository, ParticipationRepository, UserReposito
 import {SolutionRepository} from '../repositories/solution.repository';
 import {TaskRepository} from '../repositories/task.repository';
 import {OPERATION_SECURITY_SPEC} from '../utils';
+import {getOrder} from '../utils/order.header';
 
 export class TaskController {
   constructor(
@@ -151,9 +152,10 @@ export class TaskController {
   @authenticate('firebase')
   async getTasksByContestId(
     @inject(SecurityBindings.USER) currentUser: UserProfile,
-    @param.path.number('id') id: number) {
+    @param.path.number('id') id: number,
+    @param.header.string('orderby') order?: string) {
     const uid = currentUser[securityId];
-
+    const orderQuery = getOrder(order);
     let contestId: number;
     let isAdminOfContest: boolean;
 
@@ -193,7 +195,8 @@ export class TaskController {
         return this.taskRepository.find({
           where: {
             contestId: contestId
-          }
+          },
+          order: orderQuery
         })
       })
   }
@@ -242,7 +245,8 @@ export class TaskController {
 
         return this.taskRepository.create({
           contestId: contest.id,
-          text: task.text
+          text: task.text,
+          title: task.title
         })
       })
   }

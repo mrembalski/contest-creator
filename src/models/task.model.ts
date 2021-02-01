@@ -29,7 +29,20 @@ export class Task extends Entity {
   @belongsTo(() => Contest)
   contestId: number;
 
-  //no neet to be defined, it's already done in user
+  @property({
+    description: 'task\'s title',
+    type: 'string',
+    id: false,
+    required: true,
+    postgresql: {
+      columnName: 'task_title',
+      datatype: 'character varying',
+      dataLength: 100,
+      nullable: 'NO',
+    },
+  })
+  title: string;
+
   @property({
     description: 'task\'s text',
     type: 'string',

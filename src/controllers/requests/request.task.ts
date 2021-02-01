@@ -11,4 +11,10 @@ export class RequestTask extends Entity {
     required: true,
   })
   text: string;
+
+  @property({
+    type: 'string',
+    required: true,
+  })
+  title: string;
 }

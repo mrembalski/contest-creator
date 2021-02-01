@@ -294,8 +294,10 @@ export class ContestController {
   })
   @authenticate('firebase')
   async getMyContestsAsAdmin(
-    @inject(SecurityBindings.USER) currentUser: UserProfile) {
+    @inject(SecurityBindings.USER) currentUser: UserProfile,
+    @param.header.string('orderby') order?: string) {
     const uid = currentUser[securityId];
+    const orderQuery = getOrder(order);
 
     return this.userRepository.findOne({
       where: {
@@ -309,7 +311,8 @@ export class ContestController {
         return this.contestRepository.find({
           where: {
             userId: user.id
-          }
+          },
+          order: orderQuery
         })
       })
   }
@@ -328,8 +331,10 @@ export class ContestController {
   })
   @authenticate('firebase')
   async getMyContestsAsUser(
-    @inject(SecurityBindings.USER) currentUser: UserProfile) {
+    @inject(SecurityBindings.USER) currentUser: UserProfile,
+    @param.header.string('orderby') order?: string) {
     const uid = currentUser[securityId];
+    const orderQuery = getOrder(order);
 
     return this.userRepository.findOne({
       where: {
@@ -355,13 +360,10 @@ export class ContestController {
                 id: {
                   inq: contestIds
                 }
-              }
+              },
+              order: orderQuery
             })
           })
       })
   }
-
-
-
-
 }
