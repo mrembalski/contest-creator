@@ -84,6 +84,17 @@ export class User extends Entity {
   photoURL: string;
 
   @property({
+    type: 'boolean',
+    description: 'Is user disabled info',
+    default: false,
+    postgresql: {
+      columnName: 'user_disabled',
+      datatype: 'boolean',
+    },
+  })
+  disabled: boolean;
+
+  @property({
     type: 'number',
     required: true,
     generated: true,

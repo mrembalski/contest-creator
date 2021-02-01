@@ -1,7 +1,7 @@
 import {authenticate} from '@loopback/authentication';
 import {inject} from '@loopback/core';
 import {repository} from '@loopback/repository';
-import {get, getModelSchemaRef, param} from '@loopback/rest';
+import {get, getModelSchemaRef, param, put} from '@loopback/rest';
 import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
 import {ACCESS_LEVEL, User} from '../models/user.model';
 import {UserRepository} from '../repositories/user.repository';
@@ -66,8 +66,8 @@ export class UserController {
         ])
       })
       .then(([user, firebaseUser]: [User, any]) => {
-        // if (user.disabled)
-        //   return Promise.reject('Your account has been blocked.');
+        if (user.disabled)
+          return Promise.reject('Your account has been blocked.');
 
         if (!user) {
           return this.userRepository.create({
@@ -163,5 +163,45 @@ export class UserController {
         });
       })
   }
+
+  @put('/user/disable_or_enable/{user_id}', {
+    security: OPERATION_SECURITY_SPEC,
+    responses: {
+      '200': {
+        content: {
+          'application/json': {
+            // schema: getModelSchemaRef(),
+          },
+        },
+      },
+    },
+  })
+  @authenticate('firebase')
+  async disableOrEnableUser(
+    @inject(SecurityBindings.USER)
+    currentUser: UserProfile,
+    @param.query.string('block') block: boolean,
+    @param.path.number('user_id') id: number,
+  ) {
+    const uid = currentUser[securityId];
+
+    return this.userRepository.findOne({
+      where: {
+        firebaseUID: uid
+      }
+    })
+      .then((user) => {
+        if (!user)
+          return Promise.reject("No such user with given firebaseUID. Could be deleted.")
+
+        if (user.accessLevel < ACCESS_LEVEL.ADMIN)
+          return Promise.reject("Insufficient permissions.");
+
+        return this.userRepository.updateById(id, {
+          disabled: block
+        });
+      })
+  }
+
 
 }
