@@ -34,8 +34,6 @@ export class UserController {
     @param.header.string('Authorization') idToken: string) {
     let uid: string;
 
-    let registration: boolean = false;
-
     if (!idToken)
       return Promise.reject("No header.");
 
@@ -142,12 +140,13 @@ export class UserController {
   @authenticate('firebase')
   async getAllByAccess(
     @inject(SecurityBindings.USER) currentUser: UserProfile,
-    @param.path.number('access_level') accessLevel: number) {
+    @param.path.number('access_level') accessLevel: number,
+    @param.header.string('orderby') order?: string) {
+    const uid = currentUser[securityId];
+    const orderQuery = getOrder(order)
 
     if (accessLevel != 1 && accessLevel != 2 && accessLevel != 3)
       return Promise.reject("No such access level");
-
-    const uid = currentUser[securityId];
 
     return this.userRepository.findOne({
       where: {
@@ -164,7 +163,8 @@ export class UserController {
         return this.userRepository.find({
           where: {
             accessLevel
-          }
+          },
+          order: orderQuery
         });
       })
   }
