@@ -10,7 +10,7 @@
   "types": "dist/index.d.ts",
   "engines": {
     "node": "latest",
-    "npm": "latest"
+    "npm": "7.4.3"
   },
   "scripts": {
     "heroku-postbuild": "npm run build && NODE_ENV=LOCAL node -r source-map-support/register .",
