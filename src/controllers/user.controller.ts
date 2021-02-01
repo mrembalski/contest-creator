@@ -65,9 +65,6 @@ export class UserController {
         ])
       })
       .then(([user, firebaseUser]: [User, any]) => {
-        if (user.disabled)
-          return Promise.reject('Your account has been blocked.');
-
         if (!user) {
           return this.userRepository.create({
             firebaseUID: uid,
@@ -78,6 +75,9 @@ export class UserController {
             disabled: false
           })
         }
+
+        if (user.disabled)
+          return Promise.reject('Your account has been blocked.');
 
         if (user.photoURL != firebaseUser.photoURL) {
           user.photoURL = firebaseUser.photoURL;
