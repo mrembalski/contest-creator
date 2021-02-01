@@ -74,7 +74,8 @@ export class UserController {
             displayName: firebaseUser.displayName,
             photoURL: firebaseUser.photoURL,
             email: firebaseUser.email,
-            accessLevel: ACCESS_LEVEL.BASIC
+            accessLevel: ACCESS_LEVEL.BASIC,
+            disabled: false
           })
         }
 

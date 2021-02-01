@@ -77,7 +77,7 @@ export class User extends Entity {
     postgresql: {
       columnName: 'email',
       datatype: 'character varying',
-      dataLength: 100,
+      dataLength: 200,
       nullable: 'NO',
     },
   })
