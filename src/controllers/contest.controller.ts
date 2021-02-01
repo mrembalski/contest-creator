@@ -159,7 +159,17 @@ export class ContestController {
           return Promise.reject("Insufficient permissions.");
 
         return this.contestRepository.find({
-          order: orderQuery
+          order: orderQuery,
+          include: [
+            {
+              relation: 'user',
+              scope: {
+                fields: {
+                  displayName: true
+                }
+              }
+            }
+          ]
         });
       })
   }
