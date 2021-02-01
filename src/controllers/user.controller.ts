@@ -106,108 +106,107 @@ export class UserController {
     @inject(SecurityBindings.USER) currentUser: UserProfile,
     @param.header.string('orderby') order?: string) {
     const uid = currentUser[securityId];
-    const orderQuery = getOrder(order);
-    ) {
+    const orderQuery = getOrder(order)
 
-      return this.userRepository.findOne({
-        where: {
-          firebaseUID: uid
-        }
+    return this.userRepository.findOne({
+      where: {
+        firebaseUID: uid
+      }
+    })
+      .then((user) => {
+        if (!user)
+          return Promise.reject("No such user with given firebaseUID. Could be deleted.")
+
+        if (user.accessLevel < ACCESS_LEVEL.ADMIN)
+          return Promise.reject("Insufficient permissions.");
+
+        return this.userRepository.find({
+          order: orderQuery
+        });
       })
-        .then((user) => {
-          if (!user)
-            return Promise.reject("No such user with given firebaseUID. Could be deleted.")
-
-          if (user.accessLevel < ACCESS_LEVEL.ADMIN)
-            return Promise.reject("Insufficient permissions.");
-
-          return this.userRepository.find({
-            order: orderQuery
-          });
-        })
-    }
+  }
 
 
-    @get('/user/all/{access_level}', {
-      security: OPERATION_SECURITY_SPEC,
-      responses: {
-        '200': {
-          content: {
-            'application/json': {
-              schema: getModelSchemaRef(User),
-            },
+  @get('/user/all/{access_level}', {
+    security: OPERATION_SECURITY_SPEC,
+    responses: {
+      '200': {
+        content: {
+          'application/json': {
+            schema: getModelSchemaRef(User),
           },
         },
       },
-    })
-    @authenticate('firebase')
-    async getAllByAccess(
+    },
+  })
+  @authenticate('firebase')
+  async getAllByAccess(
     @inject(SecurityBindings.USER) currentUser: UserProfile,
     @param.path.number('access_level') accessLevel: number) {
 
-      if (accessLevel != 1 && accessLevel != 2 && accessLevel != 3)
-        return Promise.reject("No such access level");
+    if (accessLevel != 1 && accessLevel != 2 && accessLevel != 3)
+      return Promise.reject("No such access level");
 
-      const uid = currentUser[securityId];
+    const uid = currentUser[securityId];
 
-      return this.userRepository.findOne({
-        where: {
-          firebaseUID: uid
-        }
+    return this.userRepository.findOne({
+      where: {
+        firebaseUID: uid
+      }
+    })
+      .then((user) => {
+        if (!user)
+          return Promise.reject("No such user with given firebaseUID. Could be deleted.")
+
+        if (user.accessLevel < ACCESS_LEVEL.ADMIN)
+          return Promise.reject("Insufficient permissions.");
+
+        return this.userRepository.find({
+          where: {
+            accessLevel
+          }
+        });
       })
-        .then((user) => {
-          if (!user)
-            return Promise.reject("No such user with given firebaseUID. Could be deleted.")
+  }
 
-          if (user.accessLevel < ACCESS_LEVEL.ADMIN)
-            return Promise.reject("Insufficient permissions.");
-
-          return this.userRepository.find({
-            where: {
-              accessLevel
-            }
-          });
-        })
-    }
-
-    @put('/user/disable_or_enable/{user_id}', {
-      security: OPERATION_SECURITY_SPEC,
-      responses: {
-        '200': {
-          content: {
-            'application/json': {
-              // schema: getModelSchemaRef(),
-            },
+  @put('/user/disable_or_enable/{user_id}', {
+    security: OPERATION_SECURITY_SPEC,
+    responses: {
+      '200': {
+        content: {
+          'application/json': {
+            // schema: getModelSchemaRef(),
           },
         },
       },
-    })
-    @authenticate('firebase')
-    async disableOrEnableUser(
+    },
+  })
+  @authenticate('firebase')
+  async disableOrEnableUser(
     @inject(SecurityBindings.USER)
     currentUser: UserProfile,
     @param.query.string('block') block: boolean,
     @param.path.number('user_id') id: number,
   ) {
-      const uid = currentUser[securityId];
+    const uid = currentUser[securityId];
 
-      return this.userRepository.findOne({
-        where: {
-          firebaseUID: uid
-        }
+    return this.userRepository.findOne({
+      where: {
+        firebaseUID: uid
+      }
+    })
+      .then((user) => {
+        if (!user)
+          return Promise.reject("No such user with given firebaseUID. Could be deleted.")
+
+        if (user.accessLevel < ACCESS_LEVEL.ADMIN)
+          return Promise.reject("Insufficient permissions.");
+
+        return this.userRepository.updateById(id, {
+          disabled: block
+        });
       })
-        .then((user) => {
-          if (!user)
-            return Promise.reject("No such user with given firebaseUID. Could be deleted.")
-
-          if (user.accessLevel < ACCESS_LEVEL.ADMIN)
-            return Promise.reject("Insufficient permissions.");
-
-          return this.userRepository.updateById(id, {
-            disabled: block
-          });
-        })
-    }
-
-
   }
+
+
+}
