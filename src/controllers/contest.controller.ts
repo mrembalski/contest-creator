@@ -362,57 +362,56 @@ export class ContestController {
           }
         })
       })
-  })
-}
+  }
 
 
-@get('/contest/my/as_user', {
-  security: OPERATION_SECURITY_SPEC,
-  responses: {
-    '200': {
-      content: {
-        'application/json': {
-          schema: getModelSchemaRef(Contest),
+  @get('/contest/my/as_user', {
+    security: OPERATION_SECURITY_SPEC,
+    responses: {
+      '200': {
+        content: {
+          'application/json': {
+            schema: getModelSchemaRef(Contest),
+          },
         },
       },
     },
-  },
-})
-@authenticate('firebase')
-async getMyContestsAsUser(
-    @inject(SecurityBindings.USER) currentUser: UserProfile,
-    @param.header.string('orderby') order ?: string) {
-  const uid = currentUser[securityId];
-  const orderQuery = getOrder(order);
-
-  return this.userRepository.findOne({
-    where: {
-      firebaseUID: uid
-    }
   })
-    .then((user) => {
-      if (!user)
-        return Promise.reject("No such user with given firebaseUID. Could be deleted.")
+  @authenticate('firebase')
+  async getMyContestsAsUser(
+    @inject(SecurityBindings.USER) currentUser: UserProfile,
+    @param.header.string('orderby') order?: string) {
+    const uid = currentUser[securityId];
+    const orderQuery = getOrder(order);
 
-      return this.participationRepository.find({
-        where: {
-          userId: user.id
-        }
-      })
-        .then((participations) => {
-          const contestIds = participations.map((participation) => {
-            return participation.contestId
-          })
-
-          return this.contestRepository.find({
-            where: {
-              id: {
-                inq: contestIds
-              }
-            },
-            order: orderQuery
-          })
-        })
+    return this.userRepository.findOne({
+      where: {
+        firebaseUID: uid
+      }
     })
-}
+      .then((user) => {
+        if (!user)
+          return Promise.reject("No such user with given firebaseUID. Could be deleted.")
+
+        return this.participationRepository.find({
+          where: {
+            userId: user.id
+          }
+        })
+          .then((participations) => {
+            const contestIds = participations.map((participation) => {
+              return participation.contestId
+            })
+
+            return this.contestRepository.find({
+              where: {
+                id: {
+                  inq: contestIds
+                }
+              },
+              order: orderQuery
+            })
+          })
+      })
+  }
 }
