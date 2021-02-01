@@ -9,6 +9,7 @@ import {CommissionRepository, ContestRepository, MarkRepository, ParticipationRe
 import {SolutionRepository} from '../repositories/solution.repository';
 import {TaskRepository} from '../repositories/task.repository';
 import {OPERATION_SECURITY_SPEC} from '../utils';
+import {getOrder} from '../utils/order.header';
 import {RequestContest} from './requests';
 const moment = require('moment')
 export class ContestController {
@@ -140,8 +141,10 @@ export class ContestController {
   })
   @authenticate('firebase')
   async getAll(
-    @inject(SecurityBindings.USER) currentUser: UserProfile) {
+    @inject(SecurityBindings.USER) currentUser: UserProfile,
+    @param.header.string('orderby') order?: string) {
     const uid = currentUser[securityId];
+    const orderQuery = getOrder(order);
 
     return this.userRepository.findOne({
       where: {
@@ -155,7 +158,9 @@ export class ContestController {
         if (user.accessLevel < ACCESS_LEVEL.ADMIN)
           return Promise.reject("Insufficient permissions.");
 
-        return this.contestRepository.find();
+        return this.contestRepository.find({
+          order: orderQuery
+        });
       })
   }
 

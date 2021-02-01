@@ -81,7 +81,7 @@ export class UserController {
 
         if (user.photoURL != firebaseUser.photoURL) {
           user.photoURL = firebaseUser.photoURL;
-          return this.userRepository.save(user)
+          return this.userRepository.save(user);
         }
 
         return user;

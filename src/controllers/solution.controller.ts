@@ -11,6 +11,7 @@ import {MarkRepository} from '../repositories/mark.repository';
 import {SolutionRepository} from '../repositories/solution.repository';
 import {TaskRepository} from '../repositories/task.repository';
 import {OPERATION_SECURITY_SPEC} from '../utils';
+import {getOrder} from '../utils/order.header';
 import {RequestSolution} from './requests';
 
 export class SolutionController {
@@ -42,8 +43,10 @@ export class SolutionController {
   })
   @authenticate('firebase')
   async getAll(
-    @inject(SecurityBindings.USER) currentUser: UserProfile) {
+    @inject(SecurityBindings.USER) currentUser: UserProfile,
+    @param.header.string('orderby') order?: string) {
     const uid = currentUser[securityId];
+    const orderQuery = getOrder(order);
 
     return this.userRepository.findOne({
       where: {
@@ -62,7 +65,8 @@ export class SolutionController {
             {
               relation: 'mark'
             }
-          ]
+          ],
+          order: orderQuery
         });
       })
   }
