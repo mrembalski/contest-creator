@@ -12,6 +12,7 @@
     "node": ">=10.16"
   },
   "scripts": {
+    "heroku-postbuild": "npm run build",
     "build": "lb-tsc",
     "build:watch": "lb-tsc --watch",
     "lint": "npm run prettier:check && npm run eslint",
