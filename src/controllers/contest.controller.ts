@@ -160,16 +160,12 @@ export class ContestController {
 
         return this.contestRepository.find({
           order: orderQuery,
-          include: [
-            {
-              relation: 'user',
-              scope: {
-                fields: {
-                  displayName: true
-                }
-              }
-            }
-          ]
+          include: [{
+            relation: 'user',
+            scope: {
+              fields: ['displayName']
+            },
+          }]
         });
       })
   }
