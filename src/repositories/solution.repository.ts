@@ -95,6 +95,10 @@ export class SolutionRepository extends DefaultCrudRepository<
       }
       else {
         console.log("new markid", ctx.data.markId)
+
+        solutionClass.update({
+          markId: ctx.data.markId
+        })
       }
 
       console.log('SOLUTION - SAVING - TRIGGER END');
