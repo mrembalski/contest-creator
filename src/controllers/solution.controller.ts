@@ -359,6 +359,43 @@ export class SolutionController {
       })
   }
 
+  @post('/solution/{task_id}', {
+    security: OPERATION_SECURITY_SPEC,
+    responses: {
+      '200': {
+        content: {
+          'application/json': {
+            schema: getModelSchemaRef(Solution),
+          },
+        },
+      },
+    },
+  })
+  @authenticate('firebase')
+  async getSolutionByTaskId(
+    @param.path.number('task_id') taskId: number,
+    @requestBody() solution: RequestSolution,
+    @inject(SecurityBindings.USER) currentUser: UserProfile) {
+    const uid = currentUser[securityId];
+
+    return this.userRepository.findOne({
+      where: {
+        firebaseUID: uid
+      }
+    })
+      .then((user) => {
+        if (!user)
+          return Promise.reject("No such user with given firebaseUID. Could be deleted.")
+
+        return this.solutionRepository.findOne({
+          where: {
+            userId: user.id,
+            taskId: taskId
+          }
+        })
+      })
+  }
+
   @patch('/solution/{id}', {
     security: OPERATION_SECURITY_SPEC,
     responses: {
