@@ -142,6 +142,7 @@ export class SolutionController {
             inq: tasksIds
           }
         })
+        console.log(filterQuery.build());
 
         return this.solutionRepository.find({
           where: filterQuery.build(),
