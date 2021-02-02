@@ -140,12 +140,7 @@ export class SolutionController {
         filterQuery.impose({
           taskId: {
             inq: tasksIds
-          }
-        })
-        console.log(filterQuery.build());
-
-        return this.solutionRepository.find({
-          where: filterQuery.build(),
+          },
           include: [
             {
               relation: 'mark'
@@ -153,6 +148,10 @@ export class SolutionController {
           ],
           order: orderQuery
         })
+
+        return this.solutionRepository.find(
+          filterQuery.build()
+        )
       })
   }
 
