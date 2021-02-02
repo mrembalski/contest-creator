@@ -93,8 +93,6 @@ export class SolutionRepository extends DefaultCrudRepository<
           throw "Contest not started yet."
         }
       }
-      else
-        console.log("SOLUTION - BEFORE SAVE - UPDATE - ", ctx.data.markId)
 
       console.log('SOLUTION - SAVING - TRIGGER END');
     });
