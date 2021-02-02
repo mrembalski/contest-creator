@@ -400,9 +400,32 @@ export class SolutionController {
         if (solution.userId != user.id)
           return Promise.reject("Not your solution.")
 
+
+
         solution.text = newSolution.text;
 
-        return this.solutionRepository.save(solution);
+        return Promise.all([
+          this.taskRepository.findById(solution.taskId),
+          solution
+        ])
+      })
+      .then(([task, solution]) => {
+        return Promise.all([
+          this.contestRepository.findById(task.contestId),
+          solution
+        ])
+      })
+      .then(([contest, solution]) => {
+
+        const now = new Date();
+
+        if (now.getTime() < contest.startDate.getTime())
+          return Promise.reject("Not before start.")
+
+        if (now.getTime() > contest.endDate.getTime())
+          return Promise.reject("Not after end.")
+
+        return this.solutionRepository.save(solution)
       })
   }
 
