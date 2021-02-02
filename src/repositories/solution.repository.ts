@@ -61,8 +61,6 @@ export class SolutionRepository extends DefaultCrudRepository<
     solutionClass.observe('before save', async ctx => {
       console.log('SOLUTION - BEFORE SAVE - TRIGGER');
 
-      console.log(ctx)
-
       //creation
       if (ctx.instance) {
         const task = await this.taskRepository.findOne({
