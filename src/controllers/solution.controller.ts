@@ -1,6 +1,6 @@
 import {authenticate} from '@loopback/authentication';
 import {inject} from '@loopback/core';
-import {FilterBuilder, repository} from '@loopback/repository';
+import {repository} from '@loopback/repository';
 import {get, getModelSchemaRef, param, patch, post, requestBody} from '@loopback/rest';
 import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
 import {Solution} from '../models/solution.model';
@@ -86,25 +86,9 @@ export class SolutionController {
   async getSolutionsToContest(
     @inject(SecurityBindings.USER) currentUser: UserProfile,
     @param.path.string("id") id: number,
-    @param.header.string('orderby') order?: string,
-    @param.header.boolean('filterby') filter?: boolean) {
+    @param.header.string('orderby') order?: string) {
     const uid = currentUser[securityId];
     const orderQuery = getOrder(order);
-
-    let filterQuery: any;
-
-    if (filter !== undefined) {
-      if (filter == true)
-        filterQuery = new FilterBuilder().where({
-          markId: undefined
-        })
-      else
-        filterQuery = new FilterBuilder()
-    }
-    else
-      filterQuery = new FilterBuilder()
-
-    console.log(filterQuery)
 
     return Promise.all([
       this.userRepository.findOne({
@@ -135,11 +119,15 @@ export class SolutionController {
         })
       })
       .then((tasks) => {
-        const tasksIds = tasks.map(task => task.id)
+        const tasksIds = tasks.map((task) => {
+          return task.id
+        })
 
-        filterQuery.impose({
-          taskId: {
-            inq: tasksIds
+        return this.solutionRepository.find({
+          where: {
+            taskId: {
+              inq: tasksIds
+            },
           },
           include: [
             {
@@ -148,12 +136,153 @@ export class SolutionController {
           ],
           order: orderQuery
         })
-
-        return this.solutionRepository.find(
-          filterQuery.build()
-        )
       })
   }
+
+  @get('/solution/by_contest/{id}/with_mark', {
+    security: OPERATION_SECURITY_SPEC,
+    responses: {
+      '200': {
+        content: {
+          'application/json': {
+            schema: getModelSchemaRef(Solution),
+          },
+        },
+      },
+    },
+  })
+  @authenticate('firebase')
+  async getSolutionsToContestWithMark(
+    @inject(SecurityBindings.USER) currentUser: UserProfile,
+    @param.path.string("id") id: number,
+    @param.header.string('orderby') order?: string) {
+    const uid = currentUser[securityId];
+    const orderQuery = getOrder(order);
+
+    return Promise.all([
+      this.userRepository.findOne({
+        where: {
+          firebaseUID: uid
+        }
+      }),
+      this.contestRepository.findOne({
+        where: {
+          id: id
+        }
+      })
+    ])
+      .then(([user, contest]) => {
+        if (!user)
+          return Promise.reject("No such user with given firebaseUID. Could be deleted.")
+
+        if (!contest)
+          return Promise.reject("No such contest.");
+
+        if (user.id != contest.userId && user.accessLevel < ACCESS_LEVEL.ADMIN)
+          return Promise.reject("You are not the admin of this contest.");
+
+        return this.taskRepository.find({
+          where: {
+            contestId: id
+          }
+        })
+      })
+      .then((tasks) => {
+        const tasksIds = tasks.map((task) => {
+          return task.id
+        })
+
+        return this.solutionRepository.find({
+          where: {
+            taskId: {
+              inq: tasksIds
+            },
+            markId: {
+              neq: null
+            }
+          },
+          include: [
+            {
+              relation: 'mark'
+            }
+          ],
+          order: orderQuery
+        })
+      })
+  }
+
+  @get('/solution/by_contest/{id}/without_mark', {
+    security: OPERATION_SECURITY_SPEC,
+    responses: {
+      '200': {
+        content: {
+          'application/json': {
+            schema: getModelSchemaRef(Solution),
+          },
+        },
+      },
+    },
+  })
+  @authenticate('firebase')
+  async getSolutionsToContestWithoutMark(
+    @inject(SecurityBindings.USER) currentUser: UserProfile,
+    @param.path.string("id") id: number,
+    @param.header.string('orderby') order?: string) {
+    const uid = currentUser[securityId];
+    const orderQuery = getOrder(order);
+
+    return Promise.all([
+      this.userRepository.findOne({
+        where: {
+          firebaseUID: uid
+        }
+      }),
+      this.contestRepository.findOne({
+        where: {
+          id: id
+        }
+      })
+    ])
+      .then(([user, contest]) => {
+        if (!user)
+          return Promise.reject("No such user with given firebaseUID. Could be deleted.")
+
+        if (!contest)
+          return Promise.reject("No such contest.");
+
+        if (user.id != contest.userId && user.accessLevel < ACCESS_LEVEL.ADMIN)
+          return Promise.reject("You are not the admin of this contest.");
+
+        return this.taskRepository.find({
+          where: {
+            contestId: id
+          }
+        })
+      })
+      .then((tasks) => {
+        const tasksIds = tasks.map((task) => {
+          return task.id
+        })
+
+        return this.solutionRepository.find({
+          where: {
+            taskId: {
+              inq: tasksIds
+            },
+            markId: {
+              eq: null
+            }
+          },
+          include: [
+            {
+              relation: 'mark'
+            }
+          ],
+          order: orderQuery
+        })
+      })
+  }
+
 
 
   @post('/solution/add/{task_id}', {

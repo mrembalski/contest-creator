@@ -37,7 +37,7 @@ export class Solution extends Entity {
 
   //no neet to be defined, it's already done in mark
   @belongsTo(() => Mark)
-  markId: number;
+  markId: number | null;
 
   @property({
     description: 'solution\'s text',
