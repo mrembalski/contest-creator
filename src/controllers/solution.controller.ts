@@ -86,9 +86,21 @@ export class SolutionController {
   async getSolutionsToContest(
     @inject(SecurityBindings.USER) currentUser: UserProfile,
     @param.path.string("id") id: number,
-    @param.header.string('orderby') order?: string) {
+    @param.header.string('orderby') order?: string,
+    @param.header.string('filterby') filter?: boolean) {
     const uid = currentUser[securityId];
     const orderQuery = getOrder(order);
+
+    let filterQuery: any;
+
+    if (filter) {
+      if (filter == true)
+        filterQuery = {};
+      else
+        filterQuery = {eq: null};
+    }
+    else
+      filterQuery = {eq: null};
 
     return Promise.all([
       this.userRepository.findOne({
@@ -128,6 +140,7 @@ export class SolutionController {
             taskId: {
               inq: tasksIds
             },
+            markId: filterQuery
           },
           include: [
             {
