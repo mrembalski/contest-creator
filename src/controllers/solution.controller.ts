@@ -115,6 +115,7 @@ export class SolutionController {
       })
     ])
       .then(([user, contest]) => {
+        console.log(contest);
         if (!user)
           return Promise.reject("No such user with given firebaseUID. Could be deleted.")
 
@@ -131,6 +132,7 @@ export class SolutionController {
         })
       })
       .then((tasks) => {
+        console.log(tasks);
         const tasksIds = tasks.map((task) => {
           return task.id
         })
@@ -149,6 +151,9 @@ export class SolutionController {
           ],
           order: orderQuery
         })
+      })
+      .then((solutions) => {
+        console.log(solutions)
       })
   }
 
