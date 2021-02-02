@@ -1,6 +1,9 @@
 import {AuthenticationStrategy} from '@loopback/authentication';
+import {repository} from '@loopback/repository';
 import {HttpErrors, Request} from '@loopback/rest';
 import {securityId, UserProfile} from '@loopback/security';
+import {User} from '../models';
+import {UserRepository} from '../repositories/user.repository';
 
 
 const admin = require('firebase-admin');
@@ -10,9 +13,14 @@ const webApiKey = "AIzaSyDIRT-37vXl_9zV4UALWNwLL1Y-ME4r7AE";
 export class FirebaseAuthenticationStrategy implements AuthenticationStrategy {
   name = 'firebase';
 
-  constructor() { }
+  constructor(
+    @repository(UserRepository)
+    protected userRepository: UserRepository,
+  ) { }
 
   async authenticate(request: Request): Promise<UserProfile | undefined> {
+    let userProfileToBeReturnded: UserProfile;
+
     const token = this.extractCredencials(request);
     return admin
       .auth()
@@ -21,9 +29,22 @@ export class FirebaseAuthenticationStrategy implements AuthenticationStrategy {
       .then((decodedToken: any) => {
         const uid = decodedToken.uid;
 
-        const userProfile: UserProfile = {[securityId]: uid};
+        userProfileToBeReturnded = {[securityId]: uid};
 
-        return userProfile;
+        return this.userRepository.findOne({
+          where: {
+            firebaseUID: uid
+          }
+        })
+      })
+      .then((user: User) => {
+        if (!user)
+          throw new HttpErrors.Unauthorized(`No such user.`);
+
+        if (user.disabled)
+          throw new HttpErrors.Unauthorized(`User blocked.`);
+
+        return userProfileToBeReturnded;
       })
       .catch((err: Error) => {
 
