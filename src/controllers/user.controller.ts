@@ -184,11 +184,14 @@ export class UserController {
   })
   @authenticate('firebase')
   async disableOrEnableUser(
-    @inject(SecurityBindings.USER)
-    currentUser: UserProfile,
+    @inject(SecurityBindings.USER) currentUser: UserProfile,
     @param.header.boolean('block') block: boolean,
     @param.path.number('user_id') id: number,
   ) {
+
+    if (!block || block == undefined)
+      return Promise.reject("No header.")
+
     const uid = currentUser[securityId];
 
     return this.userRepository.findOne({
