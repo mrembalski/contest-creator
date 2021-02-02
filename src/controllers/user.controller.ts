@@ -186,7 +186,7 @@ export class UserController {
   async disableOrEnableUser(
     @inject(SecurityBindings.USER)
     currentUser: UserProfile,
-    @param.query.boolean('block') block: boolean,
+    @param.header.boolean('block') block: boolean,
     @param.path.number('user_id') id: number,
   ) {
     const uid = currentUser[securityId];
