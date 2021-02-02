@@ -14,7 +14,7 @@ export class MarkRequest extends Entity {
   value: 0 | 2 | 5 | 6;
 
   @property({
-    type: 'number',
+    type: 'string',
     required: true,
   })
   comment: string;
