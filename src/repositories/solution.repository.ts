@@ -61,36 +61,43 @@ export class SolutionRepository extends DefaultCrudRepository<
     solutionClass.observe('before save', async ctx => {
       console.log('SOLUTION - BEFORE SAVE - TRIGGER');
 
-      const task = await this.taskRepository.findOne({
-        where: {
-          id: ctx.instance.taskId
+      console.log(ctx)
+
+      //creation
+      if (ctx.instance) {
+        const task = await this.taskRepository.findOne({
+          where: {
+            id: ctx.instance.taskId
+          }
+        })
+
+        if (!task) {
+          console.log('SOLUTION - BEFORE SAVE - INVALID DATA');
+          throw "No task with given id."
         }
-      })
 
-      if (!task) {
-        console.log('SOLUTION - BEFORE SAVE - INVALID DATA');
-        throw "No task with given id."
-      }
+        const contest = await this.contestRepository.findOne({
+          where: {
+            id: task.contestId
+          }
+        })
 
-      const contest = await this.contestRepository.findOne({
-        where: {
-          id: task.contestId
+        if (!contest) {
+          console.log('SOLUTION - BEFORE SAVE - INVALID DATA');
+          throw "No contest with given id."
         }
-      })
 
-      if (!contest) {
-        console.log('SOLUTION - BEFORE SAVE - INVALID DATA');
-        throw "No contest with given id."
+        const now = new Date();
+
+        if (now.getTime() < contest.startDate.getTime()) {
+          console.log('SOLUTION - BEFORE SAVE - INVALID DATA');
+          throw "Contest not started yet."
+        }
+
+        console.log('SOLUTION - SAVING - TRIGGER END');
       }
-
-      const now = new Date();
-
-      if (now.getTime() < contest.startDate.getTime()) {
-        console.log('SOLUTION - BEFORE SAVE - INVALID DATA');
-        throw "Contest not started yet."
-      }
-
-      console.log('SOLUTION - SAVING - TRIGGER END');
+      //update
+      //will be successful
     });
 
     return solutionClass;

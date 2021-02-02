@@ -49,6 +49,9 @@ export class UserController {
 
     const token = words[1];
 
+    console.log(words);
+    console.log(token);
+
     return admin
       .auth()
       .verifyIdToken(token)
