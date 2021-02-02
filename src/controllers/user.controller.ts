@@ -103,9 +103,21 @@ export class UserController {
   @authenticate('firebase')
   async getAll(
     @inject(SecurityBindings.USER) currentUser: UserProfile,
-    @param.header.string('orderby') order?: string) {
+    @param.header.string('orderby') order?: string,
+    @param.header.boolean('filterby') filter?: boolean) {
     const uid = currentUser[securityId];
     const orderQuery = getOrder(order)
+
+    let filterQuery: any;
+
+    if (filter !== undefined) {
+      if (filter == true)
+        filterQuery = {eq: !filter};
+      else
+        filterQuery = {eq: filter};
+    }
+    else
+      filterQuery;
 
     return this.userRepository.findOne({
       where: {
@@ -120,6 +132,9 @@ export class UserController {
           return Promise.reject("Insufficient permissions.");
 
         return this.userRepository.find({
+          where: {
+            disabled: filterQuery
+          },
           order: orderQuery
         });
       })
