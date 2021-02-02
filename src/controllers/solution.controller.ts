@@ -396,6 +396,51 @@ export class SolutionController {
       })
   }
 
+  @get('/solution/{id}', {
+    security: OPERATION_SECURITY_SPEC,
+    responses: {
+      '200': {
+        content: {
+          'application/json': {
+            schema: getModelSchemaRef(Solution),
+          },
+        },
+      },
+    },
+  })
+  @authenticate('firebase')
+  async getSolutionById(
+    @inject(SecurityBindings.USER) currentUser: UserProfile,
+    @param.path.number('id') id: number,
+    @requestBody() newSolution: RequestSolution) {
+    const uid = currentUser[securityId];
+
+    return Promise.all([
+      this.userRepository.findOne({
+        where: {
+          firebaseUID: uid
+        }
+      }),
+      this.solutionRepository.findOne({
+        where: {
+          id: id
+        }
+      })
+    ])
+      .then(([user, solution]) => {
+        if (!user)
+          return Promise.reject("No such user.")
+
+        if (!solution)
+          return Promise.reject("No such solution.")
+
+        if (solution.userId != user.id)
+          return Promise.reject("Not your solution.")
+
+        return solution
+      })
+  }
+
   @patch('/solution/{id}', {
     security: OPERATION_SECURITY_SPEC,
     responses: {
