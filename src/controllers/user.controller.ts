@@ -110,12 +110,8 @@ export class UserController {
 
     let filterQuery: any;
 
-    if (filter !== undefined) {
-      if (filter == true)
-        filterQuery = {eq: !filter};
-      else
-        filterQuery = {eq: filter};
-    }
+    if (filter !== undefined)
+      filterQuery = {eq: !filter};
     else
       filterQuery;
 
