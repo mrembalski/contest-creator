@@ -191,6 +191,21 @@ export class ParticipationController {
           userId: user.id
         })
       })
+      .then(participation =>
+        this.participationRepository.findById(participation.id, {
+          include: [
+            {
+              relation: 'user',
+              scope: {
+                fields: {
+                  displayName: true,
+                  id: true
+                }
+              }
+            }
+          ]
+        })
+      )
   }
 
   @get('/participation/by_contest/{contest_id}', {

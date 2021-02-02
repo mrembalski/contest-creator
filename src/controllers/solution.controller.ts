@@ -87,7 +87,7 @@ export class SolutionController {
     @inject(SecurityBindings.USER) currentUser: UserProfile,
     @param.path.string("id") id: number,
     @param.header.string('orderby') order?: string,
-    @param.header.string('filterby') filter?: boolean) {
+    @param.header.boolean('filterby') filter?: boolean) {
     const uid = currentUser[securityId];
     const orderQuery = getOrder(order);
 
