@@ -209,6 +209,21 @@ export class CommissionController {
           contestId
         })
       })
+      .then(commission =>
+        this.commissionRepository.findById(commission.id, {
+          include: [
+            {
+              relation: 'user',
+              scope: {
+                fields: {
+                  displayName: true,
+                  id: true
+                }
+              }
+            }
+          ]
+        })
+      )
   }
 
 
