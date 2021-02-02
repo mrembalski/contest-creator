@@ -153,9 +153,17 @@ export class UserController {
   async getAllByAccess(
     @inject(SecurityBindings.USER) currentUser: UserProfile,
     @param.path.number('access_level') accessLevel: number,
-    @param.header.string('orderby') order?: string) {
+    @param.header.string('orderby') order?: string,
+    @param.header.boolean('filterby') filter?: boolean) {
     const uid = currentUser[securityId];
     const orderQuery = getOrder(order)
+
+    let filterQuery: any;
+
+    if (filter !== undefined)
+      filterQuery = {eq: !filter};
+    else
+      filterQuery;
 
     if (accessLevel != 1 && accessLevel != 2 && accessLevel != 3)
       return Promise.reject("No such access level");
@@ -174,7 +182,8 @@ export class UserController {
 
         return this.userRepository.find({
           where: {
-            accessLevel
+            accessLevel,
+            disabled: filterQuery
           },
           order: orderQuery
         });
