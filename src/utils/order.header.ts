@@ -6,7 +6,5 @@ export function getOrder(order?: string) {
   else
     orderQuery = undefined;
 
-  console.log(orderQuery);
-
   return orderQuery;
 }

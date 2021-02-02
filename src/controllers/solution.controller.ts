@@ -93,14 +93,16 @@ export class SolutionController {
 
     let filterQuery: any;
 
-    if (filter) {
+    if (filter !== undefined) {
       if (filter == true)
-        filterQuery = {};
+        filterQuery = {neq: undefined};
       else
         filterQuery = {eq: undefined};
     }
     else
-      filterQuery = {eq: undefined};
+      filterQuery;
+
+    console.log(filterQuery)
 
     return Promise.all([
       this.userRepository.findOne({
