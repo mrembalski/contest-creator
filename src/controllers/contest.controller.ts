@@ -363,12 +363,12 @@ export class ContestController {
         })
       })
       .then((commissions) => {
-        const commissionsIds = commissions.map(commission => commission.id);
+        const contestIds = commissions.map(commission => commission.contestId);
 
         return this.contestRepository.find({
           where: {
             id: {
-              inq: commissionsIds
+              inq: contestIds
             }
           },
           order: orderQuery,
