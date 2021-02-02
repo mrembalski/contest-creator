@@ -99,11 +99,7 @@ export class SolutionController {
           markId: undefined
         })
       else
-        filterQuery = new FilterBuilder().where({
-          markId: {
-            neq: undefined
-          }
-        })
+        filterQuery = new FilterBuilder()
     }
     else
       filterQuery = new FilterBuilder()
