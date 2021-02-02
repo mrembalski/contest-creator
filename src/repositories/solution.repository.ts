@@ -62,6 +62,8 @@ export class SolutionRepository extends DefaultCrudRepository<
       console.log('SOLUTION - BEFORE SAVE - TRIGGER');
 
       if (ctx.isNewInstance && ctx.isNewInstance == true) {
+        console.log('SOLUTION - BEFORE SAVE - NEW INSTANCE');
+
         const task = await this.taskRepository.findOne({
           where: {
             id: ctx.instance.taskId
@@ -90,6 +92,9 @@ export class SolutionRepository extends DefaultCrudRepository<
           console.log('SOLUTION - BEFORE SAVE - INVALID DATA');
           throw "Contest not started yet."
         }
+      }
+      else {
+        console.log("new markid", ctx.data.markId)
       }
 
       console.log('SOLUTION - SAVING - TRIGGER END');
