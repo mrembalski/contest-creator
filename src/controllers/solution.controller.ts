@@ -411,8 +411,7 @@ export class SolutionController {
   @authenticate('firebase')
   async getSolutionById(
     @inject(SecurityBindings.USER) currentUser: UserProfile,
-    @param.path.number('id') id: number,
-    @requestBody() newSolution: RequestSolution) {
+    @param.path.number('id') id: number) {
     const uid = currentUser[securityId];
 
     return Promise.all([
