@@ -189,7 +189,7 @@ export class UserController {
     @param.path.number('user_id') id: number,
   ) {
 
-    if (!block || block == undefined)
+    if (block == null || block == undefined)
       return Promise.reject("No header.")
 
     const uid = currentUser[securityId];
