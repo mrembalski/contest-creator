@@ -1,6 +1,6 @@
 import {authenticate} from '@loopback/authentication';
 import {inject} from '@loopback/core';
-import {repository} from '@loopback/repository';
+import {FilterBuilder, repository} from '@loopback/repository';
 import {get, getModelSchemaRef, param, patch, post, requestBody} from '@loopback/rest';
 import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
 import {Solution} from '../models/solution.model';
@@ -95,12 +95,20 @@ export class SolutionController {
 
     if (filter !== undefined) {
       if (filter == true)
-        filterQuery = {neq: undefined};
+        filterQuery = new FilterBuilder().where({
+          markId: undefined
+        })
       else
-        filterQuery = {eq: undefined};
+        filterQuery = new FilterBuilder().where({
+          markId: {
+            neq: undefined
+          }
+        })
     }
     else
-      filterQuery;
+      filterQuery = new FilterBuilder()
+
+    console.log(filterQuery)
 
     return Promise.all([
       this.userRepository.findOne({
@@ -131,17 +139,17 @@ export class SolutionController {
         })
       })
       .then((tasks) => {
-        const tasksIds = tasks.map((task) => {
-          return task.id
-        })
+        const tasksIds = tasks.map(task => task.id)
 
+        console.log("XD");
+
+        filterQuery.impose({
+          taskId: {
+            inq: tasksIds
+          }
+        })
         return this.solutionRepository.find({
-          where: {
-            taskId: {
-              inq: tasksIds
-            },
-            markId: filterQuery
-          },
+          where: filterQuery,
           include: [
             {
               relation: 'mark'
