@@ -5,7 +5,7 @@ import {get, getModelSchemaRef, param, patch, post, requestBody} from '@loopback
 import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
 import {Solution} from '../models/solution.model';
 import {ACCESS_LEVEL} from '../models/user.model';
-import {ContestRepository, UserRepository} from '../repositories';
+import {CommissionRepository, ContestRepository, UserRepository} from '../repositories';
 import {MarkRepository} from '../repositories/mark.repository';
 import {SolutionRepository} from '../repositories/solution.repository';
 import {TaskRepository} from '../repositories/task.repository';
@@ -25,6 +25,8 @@ export class SolutionController {
     protected taskRepository: TaskRepository,
     @repository(MarkRepository)
     protected markRepository: MarkRepository,
+    @repository(CommissionRepository)
+    protected commissionRepository: CommissionRepository,
   ) { }
 
 
@@ -283,8 +285,6 @@ export class SolutionController {
       })
   }
 
-
-
   @post('/solution/add/{task_id}', {
     security: OPERATION_SECURITY_SPEC,
     responses: {
@@ -396,7 +396,7 @@ export class SolutionController {
       })
   }
 
-  @get('/solution/{id}', {
+  @get('/solution/by_task/{id}', {
     security: OPERATION_SECURITY_SPEC,
     responses: {
       '200': {
@@ -414,29 +414,40 @@ export class SolutionController {
     @param.path.number('id') id: number) {
     const uid = currentUser[securityId];
 
-    return Promise.all([
-      this.userRepository.findOne({
-        where: {
-          firebaseUID: uid
-        }
-      }),
-      this.solutionRepository.findOne({
-        where: {
-          id: id
-        }
-      })
-    ])
-      .then(([user, solution]) => {
+    let userId: number;
+    let isAdmin: boolean;
+
+    return this.userRepository.findOne({
+      where: {
+        firebaseUID: uid
+      }
+    })
+      .then((user) => {
         if (!user)
           return Promise.reject("No such user.")
 
-        if (!solution)
-          return Promise.reject("No such solution.")
+        userId = user.id;
+        isAdmin = ACCESS_LEVEL.ADMIN === user.accessLevel;
 
-        if (solution.userId != user.id)
-          return Promise.reject("Not your solution.")
+        return this.solutionRepository.findById(id)
+      })
+      .then((solution) => this.taskRepository.findById(solution.taskId))
+      .then((task) => this.contestRepository.findById(task.contestId))
+      .then((contest) => Promise.all([
+        contest,
+        this.commissionRepository.find({
+          where: {
+            contestId: contest.id
+          }
+        })
+      ]))
+      .then(([contest, commissions]) => {
+        const userIds = commissions.map(commission => commission.userId)
 
-        return solution
+        if (!isAdmin && contest.userId != userId && !userIds.includes(userId))
+          return Promise.reject("Unauthorized.");
+
+        return this.solutionRepository.findById(id);
       })
   }
 
