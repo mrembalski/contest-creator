@@ -61,8 +61,7 @@ export class SolutionRepository extends DefaultCrudRepository<
     solutionClass.observe('before save', async ctx => {
       console.log('SOLUTION - BEFORE SAVE - TRIGGER');
 
-      //creation
-      if (ctx.instance) {
+      if (ctx.isNewInstance && ctx.isNewInstance == true) {
         const task = await this.taskRepository.findOne({
           where: {
             id: ctx.instance.taskId
@@ -91,11 +90,9 @@ export class SolutionRepository extends DefaultCrudRepository<
           console.log('SOLUTION - BEFORE SAVE - INVALID DATA');
           throw "Contest not started yet."
         }
-
-        console.log('SOLUTION - SAVING - TRIGGER END');
       }
-      //update
-      //will be successful
+
+      console.log('SOLUTION - SAVING - TRIGGER END');
     });
 
     return solutionClass;
