@@ -137,15 +137,15 @@ export class SolutionController {
       .then((tasks) => {
         const tasksIds = tasks.map(task => task.id)
 
-        console.log("XD");
-
         filterQuery.impose({
           taskId: {
             inq: tasksIds
           }
         })
+        console.log(filterQuery.build());
+
         return this.solutionRepository.find({
-          where: filterQuery,
+          where: filterQuery.build(),
           include: [
             {
               relation: 'mark'
