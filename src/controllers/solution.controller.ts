@@ -97,10 +97,10 @@ export class SolutionController {
       if (filter == true)
         filterQuery = {};
       else
-        filterQuery = {eq: null};
+        filterQuery = {eq: undefined};
     }
     else
-      filterQuery = {eq: null};
+      filterQuery = {eq: undefined};
 
     return Promise.all([
       this.userRepository.findOne({
@@ -154,6 +154,7 @@ export class SolutionController {
       })
       .then((solutions) => {
         console.log(solutions)
+        return solutions
       })
   }
 
