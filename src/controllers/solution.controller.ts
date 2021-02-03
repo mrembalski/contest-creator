@@ -372,7 +372,7 @@ export class SolutionController {
     },
   })
   @authenticate('firebase')
-  async getSolutionByTaskId(
+  async postSolutionByTaskId(
     @param.path.number('task_id') taskId: number,
     @requestBody() solution: RequestSolution,
     @inject(SecurityBindings.USER) currentUser: UserProfile) {
@@ -396,7 +396,7 @@ export class SolutionController {
       })
   }
 
-  @get('/solution/by_task/{id}', {
+  @get('/solution/{id}', {
     security: OPERATION_SECURITY_SPEC,
     responses: {
       '200': {
@@ -448,6 +448,43 @@ export class SolutionController {
           return Promise.reject("Unauthorized.");
 
         return this.solutionRepository.findById(id);
+      })
+  }
+
+
+  @get('/solution/my/by_task/{id}', {
+    security: OPERATION_SECURITY_SPEC,
+    responses: {
+      '200': {
+        content: {
+          'application/json': {
+            schema: getModelSchemaRef(Solution),
+          },
+        },
+      },
+    },
+  })
+  @authenticate('firebase')
+  async getMySolutionByTaskId(
+    @inject(SecurityBindings.USER) currentUser: UserProfile,
+    @param.path.number('id') id: number) {
+    const uid = currentUser[securityId];
+
+    return this.userRepository.findOne({
+      where: {
+        firebaseUID: uid
+      }
+    })
+      .then((user) => {
+        if (!user)
+          return Promise.reject("No such user.")
+
+        return this.solutionRepository.findOne({
+          where: {
+            userId: user.id,
+            taskId: id
+          }
+        })
       })
   }
 
