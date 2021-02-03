@@ -498,7 +498,12 @@ export class SolutionController {
           where: {
             userId: user.id,
             taskId: id
-          }
+          },
+          include: [
+            {
+              relation: 'mark'
+            }
+          ]
         })
       })
   }
