@@ -104,6 +104,76 @@ export class TaskController {
       })
   }
 
+  @get('/task/{id}', {
+    security: OPERATION_SECURITY_SPEC,
+    responses: {
+      '200': {
+        content: {
+          'application/json': {
+          },
+        },
+      },
+    },
+  })
+  @authenticate('firebase')
+  async getTaskById(
+    @inject(SecurityBindings.USER) currentUser: UserProfile,
+    @param.path.number('id') id: number) {
+    const uid = currentUser[securityId];
+
+    return Promise.all([
+      this.userRepository.findOne({
+        where: {
+          firebaseUID: uid
+        }
+      }),
+      this.taskRepository.findOne({
+        where: {
+          id: id
+        }
+      })
+    ])
+      .then(([user, task]) => {
+        if (!task)
+          return Promise.reject("No such task.")
+
+        if (!user)
+          return Promise.reject("No such user.")
+
+        return Promise.all([
+          this.commissionRepository.findOne({
+            where: {
+              userId: user.id,
+              contestId: task.contestId
+            }
+          }),
+          this.participationRepository.findOne({
+            where: {
+              userId: user.id,
+              contestId: task.contestId
+            }
+          }),
+          this.contestRepository.findOne({
+            where: {
+              id: task.contestId
+            }
+          }),
+          task,
+          user
+        ])
+      })
+      .then(([commission, participation, contest, task, user]) => {
+        if (!contest)
+          return Promise.reject("No such contest.")
+
+        if (!commission && !participation && contest.userId !== user.id && user.accessLevel !== ACCESS_LEVEL.ADMIN)
+          return Promise.reject("Insufficient permissions.")
+
+        return task
+      })
+  }
+
+
   @get('/task/all', {
     security: OPERATION_SECURITY_SPEC,
     responses: {

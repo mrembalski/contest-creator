@@ -111,7 +111,6 @@ export class SolutionController {
         if (!contest)
           return Promise.reject("No such contest.");
 
-
         return Promise.all([
           user.id != contest.userId && user.accessLevel < ACCESS_LEVEL.ADMIN,
           this.commissionRepository.findOne({
