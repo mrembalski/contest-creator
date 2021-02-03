@@ -472,10 +472,14 @@ export class MarkController {
         })
       })
       .then((mark) => {
-        return this.solutionRepository.updateById(id, {
-          markId: mark.id
-        })
+        return Promise.all([
+          mark,
+          this.solutionRepository.updateById(id, {
+            markId: mark.id
+          })
+        ])
       })
+      .then(([mark, a]) => mark)
   }
 
 }
