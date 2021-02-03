@@ -189,9 +189,6 @@ export class SolutionController {
         if (!contest)
           return Promise.reject("No such contest.");
 
-        if (user.id != contest.userId && user.accessLevel < ACCESS_LEVEL.ADMIN)
-          return Promise.reject("You are not the admin of this contest.");
-
         return Promise.all([
           user.id != contest.userId && user.accessLevel < ACCESS_LEVEL.ADMIN,
           this.commissionRepository.findOne({
@@ -272,9 +269,6 @@ export class SolutionController {
 
         if (!contest)
           return Promise.reject("No such contest.");
-
-        if (user.id != contest.userId && user.accessLevel < ACCESS_LEVEL.ADMIN)
-          return Promise.reject("You are not the admin of this contest.");
 
         return Promise.all([
           user.id != contest.userId && user.accessLevel < ACCESS_LEVEL.ADMIN,
