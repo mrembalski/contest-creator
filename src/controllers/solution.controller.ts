@@ -111,16 +111,26 @@ export class SolutionController {
         if (!contest)
           return Promise.reject("No such contest.");
 
-        if (user.id != contest.userId && user.accessLevel < ACCESS_LEVEL.ADMIN)
+
+        return Promise.all([
+          user.id != contest.userId && user.accessLevel < ACCESS_LEVEL.ADMIN,
+          this.commissionRepository.findOne({
+            where: {
+              userId: user.id,
+              contestId: id
+            }
+          }),
+          this.taskRepository.find({
+            where: {
+              contestId: id
+            }
+          })
+        ])
+      })
+      .then(([superuser, commmission, tasks]) => {
+        if (!superuser && !commmission)
           return Promise.reject("You are not the admin of this contest.");
 
-        return this.taskRepository.find({
-          where: {
-            contestId: id
-          }
-        })
-      })
-      .then((tasks) => {
         const tasksIds = tasks.map((task) => {
           return task.id
         })
@@ -528,8 +538,6 @@ export class SolutionController {
 
         if (solution.userId != user.id)
           return Promise.reject("Not your solution.")
-
-
 
         solution.text = newSolution.text;
 
