@@ -7,7 +7,7 @@ import {RequestTask} from '.';
 import {Contest} from '../models/contest.model';
 import {Task} from '../models/task.model';
 import {ACCESS_LEVEL, User} from '../models/user.model';
-import {ContestRepository, MarkRepository, ParticipationRepository, UserRepository} from '../repositories';
+import {CommissionRepository, ContestRepository, MarkRepository, ParticipationRepository, UserRepository} from '../repositories';
 import {SolutionRepository} from '../repositories/solution.repository';
 import {TaskRepository} from '../repositories/task.repository';
 import {OPERATION_SECURITY_SPEC} from '../utils';
@@ -23,6 +23,8 @@ export class TaskController {
     protected contestRepository: ContestRepository,
     @repository(ParticipationRepository)
     protected participationRepository: ParticipationRepository,
+    @repository(CommissionRepository)
+    protected commissionRepository: CommissionRepository,
     @repository(SolutionRepository)
     protected solutionRepository: SolutionRepository,
     @repository(MarkRepository)
