@@ -456,7 +456,13 @@ export class SolutionController {
         if (!isAdmin && contest.userId != userId && !userIds.includes(userId))
           return Promise.reject("Unauthorized.");
 
-        return this.solutionRepository.findById(id);
+        return this.solutionRepository.findById(id, {
+          include: [
+            {
+              relation: 'mark'
+            }
+          ]
+        });
       })
   }
 
