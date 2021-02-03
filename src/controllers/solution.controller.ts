@@ -192,13 +192,25 @@ export class SolutionController {
         if (user.id != contest.userId && user.accessLevel < ACCESS_LEVEL.ADMIN)
           return Promise.reject("You are not the admin of this contest.");
 
-        return this.taskRepository.find({
-          where: {
-            contestId: id
-          }
-        })
+        return Promise.all([
+          user.id != contest.userId && user.accessLevel < ACCESS_LEVEL.ADMIN,
+          this.commissionRepository.findOne({
+            where: {
+              contestId: contest.id,
+              userId: user.id
+            }
+          }),
+          this.taskRepository.find({
+            where: {
+              contestId: id
+            }
+          })
+        ])
       })
-      .then((tasks) => {
+      .then(([superuser, commission, tasks]) => {
+        if (!superuser && !commission)
+          return Promise.reject("Insufficient permissions.");
+
         const tasksIds = tasks.map((task) => {
           return task.id
         })
@@ -264,13 +276,25 @@ export class SolutionController {
         if (user.id != contest.userId && user.accessLevel < ACCESS_LEVEL.ADMIN)
           return Promise.reject("You are not the admin of this contest.");
 
-        return this.taskRepository.find({
-          where: {
-            contestId: id
-          }
-        })
+        return Promise.all([
+          user.id != contest.userId && user.accessLevel < ACCESS_LEVEL.ADMIN,
+          this.commissionRepository.findOne({
+            where: {
+              contestId: contest.id,
+              userId: user.id
+            }
+          }),
+          this.taskRepository.find({
+            where: {
+              contestId: id
+            }
+          })
+        ])
       })
-      .then((tasks) => {
+      .then(([superuser, commission, tasks]) => {
+        if (!superuser && !commission)
+          return Promise.reject("Insufficient permissions.");
+
         const tasksIds = tasks.map((task) => {
           return task.id
         })
